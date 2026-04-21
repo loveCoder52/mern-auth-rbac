@@ -8,12 +8,21 @@ import { toast } from 'react-toastify';
 const Login = () => {
 
   const navigate = useNavigate();
-  const { backendUrl, setIsLoggedIn, getUserData } = useContext(AppContext);
+  const { backendUrl, setIsLoggedIn, setUserRole, getUserData } = useContext(AppContext);
 
   const [state, setState] = useState('Sign Up');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const handleRedirect = (role) => {
+    // Redirect based on user role
+    if (role === 'admin') {
+      navigate('/admin/dashboard');
+    } else {
+      navigate('/dashboard');
+    }
+  }
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
@@ -25,11 +34,14 @@ const Login = () => {
       if(state === 'Sign Up') {
         const {data}  = await axios.post(backendUrl + '/api/auth/register', { name, email, password });
         if(data.success){
-          // toast.success(data.message || 'Account created successfully! Please verify your email.');
-          // setState('Login'); // Switch to login mode
           setIsLoggedIn(true);
-          getUserData();
-          navigate('/');
+          if (data.role) {
+            setUserRole(data.role);
+            localStorage.setItem('userRole', data.role);
+          }
+          toast.success('Account created successfully!');
+          // Small delay to allow context to update
+          setTimeout(() => handleRedirect(data.role || 'user'), 500);
         }else{
           toast.error(data.message || 'Signup failed. Please try again.');
         }
@@ -38,8 +50,12 @@ const Login = () => {
         if(data.success){
           toast.success('Login successful!');
           setIsLoggedIn(true);
-          getUserData();
-          navigate('/');
+          if (data.role) {
+            setUserRole(data.role);
+            localStorage.setItem('userRole', data.role);
+          }
+          // Redirect based on role
+          setTimeout(() => handleRedirect(data.role || 'user'), 500);
         } else {
           toast.error(data.message || 'Login failed. Please try again.');
         }

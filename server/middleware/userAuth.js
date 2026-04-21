@@ -13,6 +13,7 @@ const userAuth = async (req, res, next) => {
 
         if (tokenDecode.id) {
             req.userId = tokenDecode.id;
+            req.userRole = tokenDecode.role; // Extract role from token for RBAC
         } else {
             return res.json({ success: false, message: "Not authorized login again!" });
         }

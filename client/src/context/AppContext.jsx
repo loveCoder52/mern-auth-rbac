@@ -13,6 +13,7 @@ export const AppContextProvider = ({ children }) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);
+  const [userRole, setUserRole] = useState(localStorage.getItem('userRole') || null); // Store role in state and localStorage
 
   const getAuthState = async () => {
     try {
@@ -20,22 +21,48 @@ export const AppContextProvider = ({ children }) => {
       if(data.success){
         setIsLoggedIn(true);
         getUserData();
+      } else {
+        setIsLoggedIn(false);
+        setUserRole(null);
+        localStorage.removeItem('userRole');
       }
     } catch (error) {
-      toast.error(error.message);
+      setIsLoggedIn(false);
+      setUserRole(null);
+      localStorage.removeItem('userRole');
     }
   }
 
   const getUserData = async () => {
     try {
       const { data } = await axios.get(backendUrl + "/api/user/data");
-      data.success ? setUserData(data.userData) : toast.error(data.message);
+      if(data.success) {
+        setUserData(data.userData);
+        // Store role in state and localStorage for persistence
+        if (data.userData.role) {
+          setUserRole(data.userData.role);
+          localStorage.setItem('userRole', data.userData.role);
+        }
+      } else {
+        toast.error(data.message);
+      }
     } catch (error) {
       toast.error(error.message);
     }
   }
 
-
+  const logout = async () => {
+    try {
+      await axios.post(backendUrl + "/api/auth/logout");
+      setIsLoggedIn(false);
+      setUserData(null);
+      setUserRole(null);
+      localStorage.removeItem('userRole');
+      toast.success('Logged out successfully!');
+    } catch (error) {
+      toast.error(error.message);
+    }
+  }
 
   useEffect(() => {
     getAuthState();
@@ -47,7 +74,10 @@ export const AppContextProvider = ({ children }) => {
     setIsLoggedIn,
     userData,
     setUserData,
-    getUserData
+    userRole,
+    setUserRole,
+    getUserData,
+    logout
 
   }
   return (

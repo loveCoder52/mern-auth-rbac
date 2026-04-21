@@ -20,7 +20,8 @@ export const register = async (req, res) =>{ // this is for user registration
         const user = new userModel({name, email, password: hashedPassword});
         await user.save(); 
 
-        const token = jwt.sign({id: user._id}, process.env.JWT_SECRET, {expiresIn: '7d'})
+        // Include role in JWT token (default role is 'user')
+        const token = jwt.sign({id: user._id, role: user.role}, process.env.JWT_SECRET, {expiresIn: '7d'})
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -38,7 +39,7 @@ export const register = async (req, res) =>{ // this is for user registration
 
         await transporter.sendMail(mailOptions);
 
-        return res.json({success: true});
+        return res.json({success: true, role: user.role});
 
     } catch (error) {
         res.json({success: false, message: error.message})
@@ -63,7 +64,8 @@ export const login = async (req, res) =>{
             return res.json({success: false, message: "Invalid password."});
         }
         
-        const token = jwt.sign({id: user._id}, process.env.JWT_SECRET, {expiresIn: '7d'})
+        // Include role in JWT token for RBAC
+        const token = jwt.sign({id: user._id, role: user.role}, process.env.JWT_SECRET, {expiresIn: '7d'})
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -71,7 +73,7 @@ export const login = async (req, res) =>{
             maxAge: 7*24*60*60*1000
         });
 
-        return res.json({success: true});
+        return res.json({success: true, role: user.role});
 
     } catch (error) {
         return res.json({ success: false, message: error.message});
