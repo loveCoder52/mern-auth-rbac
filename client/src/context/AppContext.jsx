@@ -13,7 +13,11 @@ export const AppContextProvider = ({ children }) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);
-  const [userRole, setUserRole] = useState(localStorage.getItem('userRole') || null); // Store role in state and localStorage
+  const [userRole, setUserRole] = useState(localStorage.getItem('userRole') || null);
+  const [userPermissions, setUserPermissions] = useState(
+    JSON.parse(localStorage.getItem('userPermissions')) || []
+  );
+  const [loading, setLoading] = useState(true);
 
   const getAuthState = async () => {
     try {
@@ -24,12 +28,18 @@ export const AppContextProvider = ({ children }) => {
       } else {
         setIsLoggedIn(false);
         setUserRole(null);
+        setUserPermissions([]);
         localStorage.removeItem('userRole');
+        localStorage.removeItem('userPermissions');
       }
     } catch (error) {
       setIsLoggedIn(false);
       setUserRole(null);
+      setUserPermissions([]);
       localStorage.removeItem('userRole');
+      localStorage.removeItem('userPermissions');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -38,17 +48,37 @@ export const AppContextProvider = ({ children }) => {
       const { data } = await axios.get(backendUrl + "/api/user/data");
       if(data.success) {
         setUserData(data.userData);
-        // Store role in state and localStorage for persistence
+        // Store role and permissions in state and localStorage for persistence
         if (data.userData.role) {
           setUserRole(data.userData.role);
           localStorage.setItem('userRole', data.userData.role);
+        }
+        if (data.userData.permissions) {
+          setUserPermissions(data.userData.permissions);
+          localStorage.setItem('userPermissions', JSON.stringify(data.userData.permissions));
         }
       } else {
         toast.error(data.message);
       }
     } catch (error) {
-      toast.error(error.message);
+      console.error('Error fetching user data:', error);
     }
+  }
+
+  const hasPermission = (permission) => {
+    return userPermissions && userPermissions.includes(permission);
+  }
+
+  const hasAnyPermission = (permissions) => {
+    return permissions.some(permission => 
+      userPermissions && userPermissions.includes(permission)
+    );
+  }
+
+  const hasAllPermissions = (permissions) => {
+    return permissions.every(permission => 
+      userPermissions && userPermissions.includes(permission)
+    );
   }
 
   const logout = async () => {
@@ -57,7 +87,9 @@ export const AppContextProvider = ({ children }) => {
       setIsLoggedIn(false);
       setUserData(null);
       setUserRole(null);
+      setUserPermissions([]);
       localStorage.removeItem('userRole');
+      localStorage.removeItem('userPermissions');
       toast.success('Logged out successfully!');
     } catch (error) {
       toast.error(error.message);
@@ -76,10 +108,17 @@ export const AppContextProvider = ({ children }) => {
     setUserData,
     userRole,
     setUserRole,
+    userPermissions,
+    setUserPermissions,
     getUserData,
-    logout
-
+    logout,
+    loading,
+    // Permission helper functions
+    hasPermission,
+    hasAnyPermission,
+    hasAllPermissions
   }
+
   return (
     <AppContext.Provider value={value}>
       {children}

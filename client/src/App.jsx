@@ -5,6 +5,7 @@ import EmailVerify from "./pages/EmailVerify"
 import ResetPassword from "./pages/ResetPassword"
 import UserDashboard from "./pages/UserDashboard"
 import AdminDashboard from "./pages/AdminDashboard"
+import ManagerDashboard from "./pages/ManagerDashboard"
 import Unauthorized from "./pages/Unauthorized"
 import ProtectedRoute from "./components/ProtectedRoute"
 import { ToastContainer } from 'react-toastify';
@@ -26,8 +27,18 @@ function App() {
         <Route 
           path="/dashboard" 
           element={
-            <ProtectedRoute requiredRole="user">
+            <ProtectedRoute requiredRoles={['user', 'manager', 'admin']}>
               <UserDashboard />
+            </ProtectedRoute>
+          } 
+        />
+
+        {/* Manager Routes - Protected */}
+        <Route 
+          path="/manager/dashboard" 
+          element={
+            <ProtectedRoute requiredRoles={['manager', 'admin']}>
+              <ManagerDashboard />
             </ProtectedRoute>
           } 
         />
@@ -36,7 +47,7 @@ function App() {
         <Route 
           path="/admin/dashboard" 
           element={
-            <ProtectedRoute requiredRole="admin">
+            <ProtectedRoute requiredRoles={['admin']}>
               <AdminDashboard />
             </ProtectedRoute>
           } 

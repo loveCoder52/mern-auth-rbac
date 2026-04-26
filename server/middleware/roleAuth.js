@@ -1,25 +1,34 @@
-// Middleware to check if user has required role for RBAC
-const roleAuth = (requiredRole) => {
+/**
+ * Role Authorization Middleware
+ * Checks if user has one of the required roles
+ * 
+ * Usage: roleMiddleware(['admin', 'manager'])
+ */
+
+import { AuthorizationError } from '../utils/errors.js';
+
+export const roleMiddleware = (allowedRoles = []) => {
     return (req, res, next) => {
         try {
-            // Check if userRole exists (should be set by userAuth middleware)
             if (!req.userRole) {
-                return res.json({ success: false, message: "User role not found. Please login again." });
+                throw new AuthorizationError('User role not found');
             }
 
-            // Check if user has the required role
-            if (req.userRole !== requiredRole) {
-                return res.json({ 
-                    success: false, 
-                    message: `Access denied. Only ${requiredRole} can access this resource.` 
-                });
+            if (!allowedRoles.includes(req.userRole)) {
+                throw new AuthorizationError(
+                    `Access denied. Required roles: ${allowedRoles.join(', ')}`
+                );
             }
 
             next();
         } catch (error) {
-            return res.json({ success: false, message: error.message });
+            return res.status(error.statusCode || 403).json({
+                success: false,
+                message: error.message
+            });
         }
     };
 };
 
-export default roleAuth;
+export default roleMiddleware;
+

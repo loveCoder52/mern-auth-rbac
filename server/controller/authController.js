@@ -3,6 +3,8 @@ import jwt from "jsonwebtoken"
 import userModel from "../model/userModel.js";
 import transporter from "../config/nodemailer.js";
 import { EMAIL_VERIFY_TEMPLATE, PASSWORD_RESET_TEMPLATE } from "../config/emailTemplates.js";
+import { getUserPermissions } from "../config/rolePermission.js";
+import { updateLastLogin } from "../services/userService.js";
 
 export const register = async (req, res) =>{ // this is for user registration
     const {name, email, password} = req.body;
@@ -20,8 +22,15 @@ export const register = async (req, res) =>{ // this is for user registration
         const user = new userModel({name, email, password: hashedPassword});
         await user.save(); 
 
-        // Include role in JWT token (default role is 'user')
-        const token = jwt.sign({id: user._id, role: user.role}, process.env.JWT_SECRET, {expiresIn: '7d'})
+        // Calculate permissions based on role
+        const permissions = getUserPermissions(user.role, user.customPermissions);
+        
+        // Include role and permissions in JWT token
+        const token = jwt.sign({
+            id: user._id,
+            role: user.role,
+            permissions: permissions
+        }, process.env.JWT_SECRET, {expiresIn: '7d'})
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -39,7 +48,7 @@ export const register = async (req, res) =>{ // this is for user registration
 
         await transporter.sendMail(mailOptions);
 
-        return res.json({success: true, role: user.role});
+        return res.json({success: true, role: user.role, permissions: permissions});
 
     } catch (error) {
         res.json({success: false, message: error.message})
@@ -64,8 +73,18 @@ export const login = async (req, res) =>{
             return res.json({success: false, message: "Invalid password."});
         }
         
-        // Include role in JWT token for RBAC
-        const token = jwt.sign({id: user._id, role: user.role}, process.env.JWT_SECRET, {expiresIn: '7d'})
+        // Calculate permissions based on role
+        const permissions = getUserPermissions(user.role, user.customPermissions);
+        
+        // Update last login time
+        await updateLastLogin(user._id);
+        
+        // Include role and permissions in JWT token for RBAC
+        const token = jwt.sign({
+            id: user._id,
+            role: user.role,
+            permissions: permissions
+        }, process.env.JWT_SECRET, {expiresIn: '7d'})
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -73,7 +92,7 @@ export const login = async (req, res) =>{
             maxAge: 7*24*60*60*1000
         });
 
-        return res.json({success: true, role: user.role});
+        return res.json({success: true, role: user.role, permissions: permissions});
 
     } catch (error) {
         return res.json({ success: false, message: error.message});
@@ -178,7 +197,17 @@ export const verifyEmail = async (req, res) => {
 // check if user is authenticated
 export const isAuthenticated = async (req, res)=>{
     try {
-        return res.json({success: true});
+        // Return user data with permissions
+        return res.json({
+            success: true,
+            user: {
+                id: req.userId,
+                name: req.user.name,
+                email: req.user.email,
+                role: req.userRole,
+                permissions: req.userPermissions
+            }
+        });
     } catch (error) {
         res.json({success: false, message: error.message});
     }
