@@ -5,3 +5,13 @@
 *{
     font-family: "Outfit", sans-serif;
 }
+
+main, .page-content {
+  padding-top: 64px; /* navbar height */
+}
+
+@layer base {
+  a {
+    text-decoration: none;
+  }
+}

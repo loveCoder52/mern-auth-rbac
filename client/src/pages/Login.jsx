@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 const Login = () => {
 
   const navigate = useNavigate();
-  const { backendUrl, setIsLoggedIn, setUserRole, getUserData } = useContext(AppContext);
+  const { backendUrl, setIsLoggedIn, setUserRole, setUserData, setUserPermissions, getAuthState } = useContext(AppContext);
 
   const [state, setState] = useState('Sign Up');
   const [name, setName] = useState('');
@@ -18,11 +18,14 @@ const Login = () => {
   const handleRedirect = (role) => {
     // Redirect based on user role
     if (role === 'admin') {
-      navigate('/admin/dashboard');
+      // navigate('/admin/dashboard');
+      navigate('/'); // Redirect to home or admin dashboard
     } else if (role === 'manager') {
-      navigate('/manager/dashboard');
+      // navigate('/manager/dashboard');
+      navigate('/'); // Redirect to home or manager dashboard
     } else {
-      navigate('/dashboard');
+      // navigate('/dashboard');
+      navigate('/'); // Redirect to home or user dashboard
     }
   }
 
@@ -36,12 +39,9 @@ const Login = () => {
       if(state === 'Sign Up') {
         const {data}  = await axios.post(backendUrl + '/api/auth/register', { name, email, password });
         if(data.success){
-          setIsLoggedIn(true);
-          if (data.role) {
-            setUserRole(data.role);
-            localStorage.setItem('userRole', data.role);
-          }
           toast.success('Account created successfully!');
+          // Refresh auth state to get all user data
+          await getAuthState();
           // Small delay to allow context to update
           setTimeout(() => handleRedirect(data.role || 'user'), 500);
         }else{
@@ -51,11 +51,8 @@ const Login = () => {
         const {data} = await axios.post(backendUrl + '/api/auth/login', { email, password });
         if(data.success){
           toast.success('Login successful!');
-          setIsLoggedIn(true);
-          if (data.role) {
-            setUserRole(data.role);
-            localStorage.setItem('userRole', data.role);
-          }
+          // Refresh auth state to get all user data and permissions
+          await getAuthState();
           // Redirect based on role
           setTimeout(() => handleRedirect(data.role || 'user'), 500);
         } else {

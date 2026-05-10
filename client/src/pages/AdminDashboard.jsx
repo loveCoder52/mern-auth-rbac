@@ -52,53 +52,53 @@ const AdminDashboard = () => {
   };
 
   // Delete user function
-  const handleDeleteUser = async (userId, userName) => {
+const handleDeleteUser = async (userId, userName) => {
     if (userId === userData?._id) {
-      toast.error("You cannot delete your own account!");
-      return;
+        toast.error("You cannot delete your own account!");
+        return;
     }
 
     if (window.confirm(`Are you sure you want to delete ${userName}?`)) {
-      try {
-        axios.defaults.withCredentials = true;
-        const { data } = await axios.delete(backendUrl + '/api/admin/delete-user', {
-          data: { userId }
-        });
-        if (data.success) {
-          toast.success('User deleted successfully!');
-          fetchUsers();
-          fetchStats();
-        } else {
-          toast.error(data.message);
+        try {
+            axios.defaults.withCredentials = true;
+            const { data } = await axios.delete(
+                backendUrl + `/api/admin/user/${userId}`  // ✅ Fixed — userId URL mein
+                // ✅ body hatao — DELETE mein body nahi chahiye
+            );
+            if (data.success) {
+                toast.success('User deleted successfully!');
+                fetchUsers();
+                fetchStats();
+            } else {
+                toast.error(data.message);
+            }
+        } catch (error) {
+            toast.error('Failed to delete user: ' + error.message);
         }
-      } catch (error) {
-        toast.error('Failed to delete user: ' + error.message);
-      }
     }
-  };
-
+};
   // Update user role
   const handleUpdateRole = async (userId, newRole) => {
     setUpdatingRole(userId);
     try {
-      axios.defaults.withCredentials = true;
-      const { data } = await axios.put(backendUrl + '/api/admin/update-role', {
-        userId,
-        newRole
-      });
-      if (data.success) {
-        toast.success(`User role updated to ${newRole}!`);
-        fetchUsers();
-        fetchStats();
-      } else {
-        toast.error(data.message);
-      }
+        axios.defaults.withCredentials = true;
+        const { data } = await axios.put(
+            backendUrl + `/api/admin/user/${userId}/role`,  // ✅ Fixed URL
+            { newRole }  // ✅ Sirf newRole body mein, userId URL mein hai
+        );
+        if (data.success) {
+            toast.success(`User role updated to ${newRole}!`);
+            fetchUsers();
+            fetchStats();
+        } else {
+            toast.error(data.message);
+        }
     } catch (error) {
-      toast.error('Failed to update role: ' + error.message);
+        toast.error('Failed to update role: ' + error.message);
     } finally {
-      setUpdatingRole(null);
+        setUpdatingRole(null);
     }
-  };
+};
 
   const handleLogout = async () => {
     await logout();

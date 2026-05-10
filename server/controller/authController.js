@@ -6,36 +6,42 @@ import { EMAIL_VERIFY_TEMPLATE, PASSWORD_RESET_TEMPLATE } from "../config/emailT
 import { getUserPermissions } from "../config/rolePermission.js";
 import { updateLastLogin } from "../services/userService.js";
 
-export const register = async (req, res) =>{ // this is for user registration
-    const {name, email, password} = req.body;
+export const register = async (req, res) => { // this is for user registration
+    const { name, email, password } = req.body;
 
-    if(!name || !email || !password){
-        return res.json({success: false, message: "Missing details"})
+    if (!name || !email || !password) {
+        return res.json({ success: false, message: "Missing details" })
     }
 
     try {
-        const existingUser = await userModel.findOne({email})
-        if(existingUser){
-            return res.json({success: false, message: "User already exists."})
+        const existingUser = await userModel.findOne({ email })
+        if (existingUser) {
+            return res.json({ success: false, message: "User already exists." })
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const user = new userModel({name, email, password: hashedPassword});
-        await user.save(); 
+        const user = new userModel({ name, email, password: hashedPassword });
+        await user.save();
 
         // Calculate permissions based on role
         const permissions = getUserPermissions(user.role, user.customPermissions);
-        
+
         // Include role and permissions in JWT token
         const token = jwt.sign({
             id: user._id,
             role: user.role,
             permissions: permissions
-        }, process.env.JWT_SECRET, {expiresIn: '7d'})
+        }, process.env.JWT_SECRET, { expiresIn: '7d' })
+        // res.cookie('token', token, {
+        //     httpOnly: true,
+        //     secure: process.env.NODE_ENV === 'production',
+        //     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict' ,
+        //     maxAge: 7*24*60*60*1000
+        // });
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict' ,
-            maxAge: 7*24*60*60*1000
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // ✅ strict → lax
+            maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
         // sending wellcome email
@@ -48,69 +54,72 @@ export const register = async (req, res) =>{ // this is for user registration
 
         await transporter.sendMail(mailOptions);
 
-        return res.json({success: true, role: user.role, permissions: permissions});
+        return res.json({ success: true, role: user.role, permissions: permissions });
 
     } catch (error) {
-        res.json({success: false, message: error.message})
+        res.json({ success: false, message: error.message })
     }
 }
 
-export const login = async (req, res) =>{
-    const {email, password} = req.body;
+export const login = async (req, res) => {
+    const { email, password } = req.body;
 
-        if(!email || !password) {
-            return res.json({success: false, message: "Email and password is required!"})
-        } 
+    if (!email || !password) {
+        return res.json({ success: false, message: "Email and password is required!" })
+    }
 
     try {
-        const user = await userModel.findOne({email});
-        if(!user){
-            return res.json({success: false, message: "Invalid email."});
+        const user = await userModel.findOne({ email });
+        if (!user) {
+            return res.json({ success: false, message: "Invalid email." });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
-        if(!isMatch){
-            return res.json({success: false, message: "Invalid password."});
+        if (!isMatch) {
+            return res.json({ success: false, message: "Invalid password." });
         }
-        
+
         // Calculate permissions based on role
         const permissions = getUserPermissions(user.role, user.customPermissions);
-        
+
         // Update last login time
         await updateLastLogin(user._id);
-        
+
         // Include role and permissions in JWT token for RBAC
         const token = jwt.sign({
             id: user._id,
             role: user.role,
             permissions: permissions
-        }, process.env.JWT_SECRET, {expiresIn: '7d'})
+        }, process.env.JWT_SECRET, { expiresIn: '7d' })
+
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict' ,
-            maxAge: 7*24*60*60*1000
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            path: '/'
         });
 
-        return res.json({success: true, role: user.role, permissions: permissions});
+        return res.json({ success: true, role: user.role, permissions: permissions });
 
     } catch (error) {
-        return res.json({ success: false, message: error.message});
+        return res.json({ success: false, message: error.message });
     }
 }
 
-export const logout = (req,res) =>{
+export const logout = (req, res) => {
     try {
         res.clearCookie('token', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            path: '/'
         })
 
-        return res.json({success: true, message: "Logged Out"})
+        return res.json({ success: true, message: "Logged Out" })
 
     } catch (error) {
-        return res.json({ success: false, message: error.message})
+        return res.json({ success: false, message: error.message })
     }
 }
 
@@ -195,38 +204,47 @@ export const verifyEmail = async (req, res) => {
 };
 
 // check if user is authenticated
-export const isAuthenticated = async (req, res)=>{
+export const isAuthenticated = async (req, res) => {
     try {
+        const user = await userModel.findById(req.userId);
+        
+        if (!user) {
+            return res.json({ success: false, message: "User not found" });
+        }
+
+        // Get permissions from token (which has them decoded by middleware)
+        const permissions = req.userPermissions || getUserPermissions(req.userRole, user.customPermissions);
+
         // Return user data with permissions
         return res.json({
             success: true,
             user: {
                 id: req.userId,
-                name: req.user.name,
-                email: req.user.email,
+                name: user.name,
+                email: user.email,
                 role: req.userRole,
-                permissions: req.userPermissions
+                permissions: permissions
             }
         });
     } catch (error) {
-        res.json({success: false, message: error.message});
+        return res.json({ success: false, message: error.message });
     }
 }
 
 //send password reset otp
-export const sendResetOtp = async (req, res) =>{
-    const {email} = req.body;
+export const sendResetOtp = async (req, res) => {
+    const { email } = req.body;
 
-    if(!email){
-        return res.json({success: false, message: "E-mail is required"});
+    if (!email) {
+        return res.json({ success: false, message: "E-mail is required" });
     }
 
     try {
-        
-        const user = await userModel.findOne({email});
 
-        if(!user){
-            return res.json({success: false, message: "User not found!"});
+        const user = await userModel.findOne({ email });
+
+        if (!user) {
+            return res.json({ success: false, message: "User not found!" });
         }
 
         const otp = String(Math.floor(100000 + Math.random() * 900000));
@@ -244,34 +262,34 @@ export const sendResetOtp = async (req, res) =>{
 
         await transporter.sendMail(mailOption);
 
-        return res.json({success: true, message: "OTP send to your email"})
+        return res.json({ success: true, message: "OTP send to your email" })
 
     } catch (error) {
-        return res.json({success: false, message: error.message});
+        return res.json({ success: false, message: error.message });
     }
 }
 
 //reset user password
-export const resetPassword = async (req, res)=>{
-    const {email, otp, newPassword} = req.body;
+export const resetPassword = async (req, res) => {
+    const { email, otp, newPassword } = req.body;
 
-    if(!email || !otp || !newPassword){
-        return res.json({success: false, message: "E-mail, OTP, and new Password is required"});
+    if (!email || !otp || !newPassword) {
+        return res.json({ success: false, message: "E-mail, OTP, and new Password is required" });
     }
 
     try {
-        
-        const user = await userModel.findOne({email});
-        if(!user){
-            return res.json({success: false, message: "User not found"});
+
+        const user = await userModel.findOne({ email });
+        if (!user) {
+            return res.json({ success: false, message: "User not found" });
         }
 
-        if(user.resetOtp === '' || user.resetOtp !== otp){
-            return res.json({success: false, message: "Invalid OTP"});
+        if (user.resetOtp === '' || user.resetOtp !== otp) {
+            return res.json({ success: false, message: "Invalid OTP" });
         }
 
-        if(user.resetOtpExpireAt < Date.now()){
-            return res.json({success: false, message: "OTP Expired."});
+        if (user.resetOtpExpireAt < Date.now()) {
+            return res.json({ success: false, message: "OTP Expired." });
         }
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -282,10 +300,10 @@ export const resetPassword = async (req, res)=>{
 
         await user.save();
 
-        return res.json({success: true, message: "Password has been reset successfully."});
+        return res.json({ success: true, message: "Password has been reset successfully." });
 
     } catch (error) {
-        return res.json({success: false, message: error.message});
+        return res.json({ success: false, message: error.message });
     }
 
 }

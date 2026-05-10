@@ -24,16 +24,23 @@ export const AppContextProvider = ({ children }) => {
       const { data } = await axios.get(backendUrl + "/api/auth/is-auth");
       if(data.success){
         setIsLoggedIn(true);
-        getUserData();
+        setUserData(data.user); // ✅ Use response directly
+        setUserRole(data.user.role);
+        setUserPermissions(data.user.permissions);
+        localStorage.setItem('userRole', data.user.role);
+        localStorage.setItem('userPermissions', JSON.stringify(data.user.permissions));
       } else {
         setIsLoggedIn(false);
+        setUserData(null);
         setUserRole(null);
         setUserPermissions([]);
         localStorage.removeItem('userRole');
         localStorage.removeItem('userPermissions');
       }
     } catch (error) {
+      console.log('Auth check failed:', error.message);
       setIsLoggedIn(false);
+      setUserData(null);
       setUserRole(null);
       setUserPermissions([]);
       localStorage.removeItem('userRole');
@@ -111,6 +118,7 @@ export const AppContextProvider = ({ children }) => {
     userPermissions,
     setUserPermissions,
     getUserData,
+    getAuthState,
     logout,
     loading,
     // Permission helper functions

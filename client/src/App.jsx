@@ -9,6 +9,10 @@ import ManagerDashboard from "./pages/ManagerDashboard"
 import Unauthorized from "./pages/Unauthorized"
 import ProtectedRoute from "./components/ProtectedRoute"
 import { ToastContainer } from 'react-toastify';
+import About from '../src/pages/About.jsx';
+import Services from '../src/pages/Services.jsx';
+import Project from '../src/pages/Project.jsx';
+import Contact from '../src/pages/Contact.jsx';
 
 function App() {
 
@@ -16,6 +20,12 @@ function App() {
     <>
       <ToastContainer />
       <Routes>
+        <Route path="/"        element={<Home />} />
+        <Route path="/about"   element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/service" element={<Services />} />
+        <Route path="/project" element={<Project />} />
+
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />

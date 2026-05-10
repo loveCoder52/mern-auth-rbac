@@ -49,9 +49,9 @@ export const getAllUsersController = async (req, res) => {
 // Delete a user (soft delete)
 export const deleteUserController = async (req, res) => {
     try {
-        const { userId } = req.body;
+        const { id } = req.params; // ✅ Fixed: was req.body.userId
 
-        if (!userId) {
+        if (!id) {
             return res.json({
                 success: false,
                 message: "User ID is required"
@@ -59,14 +59,14 @@ export const deleteUserController = async (req, res) => {
         }
 
         // Prevent self-deletion
-        if (userId === req.userId) {
+        if (id === req.userId) {
             return res.json({
                 success: false,
                 message: "You cannot delete your own account"
             });
         }
 
-        const user = await deleteUser(userId);
+        const user = await deleteUser(id);
 
         if (!user) {
             return res.json({
@@ -92,9 +92,10 @@ export const deleteUserController = async (req, res) => {
 // Update user role
 export const updateUserRoleController = async (req, res) => {
     try {
-        const { userId, newRole } = req.body;
+        const { id } = req.params;      // ✅ Fixed: was req.body.userId
+        const { newRole } = req.body;   // ✅ newRole stays in body
 
-        if (!userId || !newRole) {
+        if (!id || !newRole) {
             return res.json({
                 success: false,
                 message: "User ID and new role are required"
@@ -110,14 +111,14 @@ export const updateUserRoleController = async (req, res) => {
         }
 
         // Prevent self-role change
-        if (userId === req.userId) {
+        if (id === req.userId) {
             return res.json({
                 success: false,
                 message: "You cannot change your own role"
             });
         }
 
-        const user = await updateUserRole(userId, newRole);
+        const user = await updateUserRole(id, newRole);
 
         if (!user) {
             return res.json({

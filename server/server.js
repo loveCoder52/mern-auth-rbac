@@ -16,11 +16,14 @@ const app = express();
 const port = process.env.PORT || 4000
 connectDB()
 
-const allowedOrigins = [process.env.FRONTEND_URL,];
+// CORS configuration must come before routes
+app.use(cors({
+    credentials: true,
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173'
+}))
 
 app.use(express.json())
 app.use(cookieParser())
-app.use(cors({credentials: true, origin: allowedOrigins}))
 
 // API Endpoints
 app.get('/', (req, res) => res.send("Production RBAC API is running"));
