@@ -7,12 +7,13 @@ import UserDashboard from "./pages/UserDashboard"
 import AdminDashboard from "./pages/AdminDashboard"
 import ManagerDashboard from "./pages/ManagerDashboard"
 import Unauthorized from "./pages/Unauthorized"
-import ProtectedRoute from "./components/ProtectedRoute"
+import ProtectedRoute from "./components/ProtectedRoute.jsx"
 import { ToastContainer } from 'react-toastify';
 import About from '../src/pages/About.jsx';
 import Services from '../src/pages/Services.jsx';
 import Project from '../src/pages/Project.jsx';
 import Contact from '../src/pages/Contact.jsx';
+import ProductManagement from "../src/pages/ProductManagement.jsx";
 
 function App() {
 
@@ -20,8 +21,8 @@ function App() {
     <>
       <ToastContainer />
       <Routes>
-        <Route path="/"        element={<Home />} />
-        <Route path="/about"   element={<About />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/service" element={<Services />} />
         <Route path="/project" element={<Project />} />
@@ -34,37 +35,52 @@ function App() {
         <Route path="/unauthorized" element={<Unauthorized />} />
 
         {/* User Routes - Protected */}
-        <Route 
-          path="/dashboard" 
+        <Route
+          path="/dashboard"
           element={
             <ProtectedRoute requiredRoles={['user', 'manager', 'admin']}>
               <UserDashboard />
             </ProtectedRoute>
-          } 
+          }
         />
 
         {/* Manager Routes - Protected */}
-        <Route 
-          path="/manager/dashboard" 
+        <Route
+          path="/manager/dashboard"
           element={
             <ProtectedRoute requiredRoles={['manager', 'admin']}>
               <ManagerDashboard />
             </ProtectedRoute>
-          } 
+          }
         />
 
         {/* Admin Routes - Protected */}
-        <Route 
-          path="/admin/dashboard" 
+        <Route
+          path="/admin/dashboard"
           element={
             <ProtectedRoute requiredRoles={['admin']}>
               <AdminDashboard />
             </ProtectedRoute>
-          } 
+          }
         />
 
         {/* Catch all - redirect to home */}
         <Route path="*" element={<Navigate to="/" replace />} />
+
+
+        {/* Product Management Route - Protected */}
+        {/* Admin Product Management Route */}
+        <Route
+          path="/admin/products"
+          element={
+            <ProtectedRoute requiredRoles={['admin']}>
+              <ProductManagement />
+            </ProtectedRoute>
+          }
+        />
+
+
+
       </Routes>
     </>
   )

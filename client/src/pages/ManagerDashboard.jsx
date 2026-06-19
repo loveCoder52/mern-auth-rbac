@@ -94,12 +94,18 @@ const ManagerDashboard = () => {
       <div className='bg-gray-800 bg-opacity-80 backdrop-blur-sm sticky top-0 z-50 shadow-lg'>
         <div className='max-w-7xl mx-auto px-6 py-4 flex justify-between items-center'>
           <h1 className='text-2xl font-bold text-purple-400'>👔 Manager Dashboard</h1>
-          <button
-            onClick={handleLogout}
-            className='px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition duration-300'
-          >
-            Logout
-          </button>
+          <div>
+            <button
+              className='px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition duration-300 mx-1'
+              onClick={() => navigate('/')}
+            >Home</button>
+            <button
+              onClick={handleLogout}
+              className='px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition duration-300 mx-1'
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </div>
 
@@ -181,22 +187,20 @@ const ManagerDashboard = () => {
                             />
                           </td>
                           <td className='px-4 py-3'>
-                            <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                              user.role === 'admin'
+                            <span className={`px-3 py-1 rounded-full text-sm font-semibold ${user.role === 'admin'
                                 ? 'bg-red-600 text-red-100'
                                 : user.role === 'manager'
-                                ? 'bg-purple-600 text-purple-100'
-                                : 'bg-blue-600 text-blue-100'
-                            }`}>
+                                  ? 'bg-purple-600 text-purple-100'
+                                  : 'bg-blue-600 text-blue-100'
+                              }`}>
                               {user.role.toUpperCase()}
                             </span>
                           </td>
                           <td className='px-4 py-3'>
-                            <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                              user.isAccountVerified
+                            <span className={`px-3 py-1 rounded-full text-sm font-semibold ${user.isAccountVerified
                                 ? 'bg-green-600 text-green-100'
                                 : 'bg-yellow-600 text-yellow-100'
-                            }`}>
+                              }`}>
                               {user.isAccountVerified ? '✓ Verified' : '⚠ Unverified'}
                             </span>
                           </td>
@@ -222,22 +226,20 @@ const ManagerDashboard = () => {
                           <td className='px-4 py-3'>{user.name}</td>
                           <td className='px-4 py-3'>{user.email}</td>
                           <td className='px-4 py-3'>
-                            <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                              user.role === 'admin'
+                            <span className={`px-3 py-1 rounded-full text-sm font-semibold ${user.role === 'admin'
                                 ? 'bg-red-600 text-red-100'
                                 : user.role === 'manager'
-                                ? 'bg-purple-600 text-purple-100'
-                                : 'bg-blue-600 text-blue-100'
-                            }`}>
+                                  ? 'bg-purple-600 text-purple-100'
+                                  : 'bg-blue-600 text-blue-100'
+                              }`}>
                               {user.role.toUpperCase()}
                             </span>
                           </td>
                           <td className='px-4 py-3'>
-                            <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                              user.isAccountVerified
+                            <span className={`px-3 py-1 rounded-full text-sm font-semibold ${user.isAccountVerified
                                 ? 'bg-green-600 text-green-100'
                                 : 'bg-yellow-600 text-yellow-100'
-                            }`}>
+                              }`}>
                               {user.isAccountVerified ? '✓ Verified' : '⚠ Unverified'}
                             </span>
                           </td>
@@ -264,7 +266,7 @@ const ManagerDashboard = () => {
         {/* Info Box */}
         <div className='mt-8 bg-purple-900 bg-opacity-30 border border-purple-500 border-opacity-50 rounded-lg p-6'>
           <p className='text-purple-200'>
-            <strong>Manager Permissions:</strong> As a manager, you can view all users and update basic information. 
+            <strong>Manager Permissions:</strong> As a manager, you can view all users and update basic information.
             You cannot delete users or change roles. For advanced operations, contact your administrator.
           </p>
         </div>

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import {Link} from "react-router-dom";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -52,53 +53,53 @@ const AdminDashboard = () => {
   };
 
   // Delete user function
-const handleDeleteUser = async (userId, userName) => {
+  const handleDeleteUser = async (userId, userName) => {
     if (userId === userData?._id) {
-        toast.error("You cannot delete your own account!");
-        return;
+      toast.error("You cannot delete your own account!");
+      return;
     }
 
     if (window.confirm(`Are you sure you want to delete ${userName}?`)) {
-        try {
-            axios.defaults.withCredentials = true;
-            const { data } = await axios.delete(
-                backendUrl + `/api/admin/user/${userId}`  // ✅ Fixed — userId URL mein
-                // ✅ body hatao — DELETE mein body nahi chahiye
-            );
-            if (data.success) {
-                toast.success('User deleted successfully!');
-                fetchUsers();
-                fetchStats();
-            } else {
-                toast.error(data.message);
-            }
-        } catch (error) {
-            toast.error('Failed to delete user: ' + error.message);
+      try {
+        axios.defaults.withCredentials = true;
+        const { data } = await axios.delete(
+          backendUrl + `/api/admin/user/${userId}`  // ✅ Fixed — userId URL mein
+          // ✅ body hatao — DELETE mein body nahi chahiye
+        );
+        if (data.success) {
+          toast.success('User deleted successfully!');
+          fetchUsers();
+          fetchStats();
+        } else {
+          toast.error(data.message);
         }
+      } catch (error) {
+        toast.error('Failed to delete user: ' + error.message);
+      }
     }
-};
+  };
   // Update user role
   const handleUpdateRole = async (userId, newRole) => {
     setUpdatingRole(userId);
     try {
-        axios.defaults.withCredentials = true;
-        const { data } = await axios.put(
-            backendUrl + `/api/admin/user/${userId}/role`,  // ✅ Fixed URL
-            { newRole }  // ✅ Sirf newRole body mein, userId URL mein hai
-        );
-        if (data.success) {
-            toast.success(`User role updated to ${newRole}!`);
-            fetchUsers();
-            fetchStats();
-        } else {
-            toast.error(data.message);
-        }
+      axios.defaults.withCredentials = true;
+      const { data } = await axios.put(
+        backendUrl + `/api/admin/user/${userId}/role`,  // ✅ Fixed URL
+        { newRole }  // ✅ Sirf newRole body mein, userId URL mein hai
+      );
+      if (data.success) {
+        toast.success(`User role updated to ${newRole}!`);
+        fetchUsers();
+        fetchStats();
+      } else {
+        toast.error(data.message);
+      }
     } catch (error) {
-        toast.error('Failed to update role: ' + error.message);
+      toast.error('Failed to update role: ' + error.message);
     } finally {
-        setUpdatingRole(null);
+      setUpdatingRole(null);
     }
-};
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -111,12 +112,25 @@ const handleDeleteUser = async (userId, userName) => {
       <div className='bg-gray-800 bg-opacity-80 backdrop-blur-sm sticky top-0 z-50 shadow-lg'>
         <div className='max-w-7xl mx-auto px-6 py-4 flex justify-between items-center'>
           <h1 className='text-2xl font-bold text-red-400'>⚙️ Admin Dashboard</h1>
-          <button
-            onClick={handleLogout}
-            className='px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition duration-300'
-          >
-            Logout
-          </button>
+
+          
+
+          <Link to="/admin/products">
+            Manage Products
+          </Link>
+
+          <div>
+            <button
+              className='px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition duration-300 mx-1'
+              onClick={() => navigate('/')}
+            >Home</button>
+            <button
+              onClick={handleLogout}
+              className='px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition duration-300 mx-1'
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </div>
 
@@ -178,20 +192,18 @@ const handleDeleteUser = async (userId, userName) => {
                       <td className='px-4 py-3'>{user.name}</td>
                       <td className='px-4 py-3'>{user.email}</td>
                       <td className='px-4 py-3'>
-                        <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                          user.role === 'admin' 
-                            ? 'bg-red-600 text-red-100' 
-                            : 'bg-blue-600 text-blue-100'
-                        }`}>
+                        <span className={`px-3 py-1 rounded-full text-sm font-semibold ${user.role === 'admin'
+                          ? 'bg-red-600 text-red-100'
+                          : 'bg-blue-600 text-blue-100'
+                          }`}>
                           {user.role.toUpperCase()}
                         </span>
                       </td>
                       <td className='px-4 py-3'>
-                        <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                          user.isAccountVerified 
-                            ? 'bg-green-600 text-green-100' 
-                            : 'bg-yellow-600 text-yellow-100'
-                        }`}>
+                        <span className={`px-3 py-1 rounded-full text-sm font-semibold ${user.isAccountVerified
+                          ? 'bg-green-600 text-green-100'
+                          : 'bg-yellow-600 text-yellow-100'
+                          }`}>
                           {user.isAccountVerified ? '✓ Verified' : '⚠ Unverified'}
                         </span>
                       </td>

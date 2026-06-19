@@ -1,1 +1,1 @@
-export const DB_NAME = 'mern-auth';
+export const DB_NAME = 'MajesticIndia';
