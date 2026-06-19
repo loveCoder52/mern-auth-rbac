@@ -113,12 +113,6 @@ const AdminDashboard = () => {
         <div className='max-w-7xl mx-auto px-6 py-4 flex justify-between items-center'>
           <h1 className='text-2xl font-bold text-red-400'>⚙️ Admin Dashboard</h1>
 
-          
-
-          <Link to="/admin/products">
-            Manage Products
-          </Link>
-
           <div>
             <button
               className='px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition duration-300 mx-1'
@@ -246,6 +240,12 @@ const AdminDashboard = () => {
             <li>✓ View user verification status</li>
             <li>✓ Access real-time statistics and analytics</li>
           </ul>
+        </div>
+
+        <div className='mt-8 bg-gray-700 rounded-lg p-6'>
+          <Link className='text-lg font-bold mb-4 text-red-400' to="/admin/products">
+            Manage Products
+          </Link>
         </div>
       </div>
     </div>

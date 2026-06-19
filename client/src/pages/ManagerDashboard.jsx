@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import {Link} from "react-router-dom";
+
 
 const ManagerDashboard = () => {
   const navigate = useNavigate();
@@ -270,6 +272,13 @@ const ManagerDashboard = () => {
             You cannot delete users or change roles. For advanced operations, contact your administrator.
           </p>
         </div>
+
+          <div className='mt-8 bg-gray-700 rounded-lg p-6'>
+          <Link className='text-lg font-bold mb-4 text-red-400' to="/manager/products">
+            Manage Products
+          </Link>
+          </div>
+
       </div>
     </div>
   );

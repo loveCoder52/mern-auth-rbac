@@ -5,12 +5,13 @@ import transporter from "../config/nodemailer.js";
 import { EMAIL_VERIFY_TEMPLATE, PASSWORD_RESET_TEMPLATE } from "../config/emailTemplates.js";
 import { getUserPermissions } from "../config/rolePermission.js";
 import { updateLastLogin } from "../services/userService.js";
+import crypto from "crypto";
 
 export const register = async (req, res) => { // this is for user registration
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-        return res.json({ success: false, message: "Missing details" })
+        return res.status(400).json({ success: false, message: "Missing details" });
     }
 
     try {
@@ -70,8 +71,8 @@ export const login = async (req, res) => {
 
     try {
         const user = await userModel.findOne({ email });
-        if (!user) {
-            return res.json({ success: false, message: "Invalid email." });
+        if (!user || !user.isActive) {
+            return res.status(401).json({ success: false, message: "Invalid credentials." });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
@@ -207,7 +208,7 @@ export const verifyEmail = async (req, res) => {
 export const isAuthenticated = async (req, res) => {
     try {
         const user = await userModel.findById(req.userId);
-        
+
         if (!user) {
             return res.json({ success: false, message: "User not found" });
         }
@@ -247,9 +248,18 @@ export const sendResetOtp = async (req, res) => {
             return res.json({ success: false, message: "User not found!" });
         }
 
-        const otp = String(Math.floor(100000 + Math.random() * 900000));
-        user.resetOtp = otp;
-        user.resetOtpExpireAt = Date.now() + 15 * 60 * 1000;
+        // const otp = String(Math.floor(100000 + Math.random() * 900000));
+        // user.resetOtp = otp;
+        // user.resetOtpExpireAt = Date.now() + 15 * 60 * 1000;
+
+        const hashOtp = (otp) => crypto.createHash("sha256").update(otp).digest("hex");
+
+        user.resetOtp = hashOtp(otp);
+
+        // later:
+        if (!user.resetOtp || user.resetOtp !== hashOtp(otp)) {
+            return res.status(400).json({ success: false, message: "Invalid OTP" });
+        }
 
         await user.save();
 

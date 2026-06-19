@@ -14,6 +14,8 @@ import Services from '../src/pages/Services.jsx';
 import Project from '../src/pages/Project.jsx';
 import Contact from '../src/pages/Contact.jsx';
 import ProductManagement from "../src/pages/ProductManagement.jsx";
+import ProductList from "../src/pages/ProductList.jsx";
+import EditProduct from "../src/pages/EditProduct.jsx";
 
 function App() {
 
@@ -33,6 +35,14 @@ function App() {
         <Route path="/email-verify" element={<EmailVerify />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
+        <Route
+          path="/products"
+          element={
+            <ProtectedRoute requiredRoles={['user', 'manager', 'admin']}>
+              <ProductList />
+            </ProtectedRoute>
+          }
+        />
 
         {/* User Routes - Protected */}
         <Route
@@ -64,12 +74,6 @@ function App() {
           }
         />
 
-        {/* Catch all - redirect to home */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-
-
-        {/* Product Management Route - Protected */}
-        {/* Admin Product Management Route */}
         <Route
           path="/admin/products"
           element={
@@ -78,6 +82,33 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin/products/:id/edit"
+          element={
+            <ProtectedRoute requiredRoles={['admin']}>
+              <EditProduct />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/manager/products"
+          element={
+            <ProtectedRoute requiredRoles={['manager', 'admin']}>
+              <ProductManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/manager/products/:id/edit"
+          element={
+            <ProtectedRoute requiredRoles={['manager', 'admin']}>
+              <EditProduct />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Catch all - redirect to home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
 
 
 

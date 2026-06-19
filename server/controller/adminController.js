@@ -52,15 +52,12 @@ export const deleteUserController = async (req, res) => {
         const { id } = req.params; // ✅ Fixed: was req.body.userId
 
         if (!id) {
-            return res.json({
-                success: false,
-                message: "User ID is required"
-            });
+           return res.status(401).json({ success: false, message: "Invalid credentials" });
         }
 
         // Prevent self-deletion
         if (id === req.userId) {
-            return res.json({
+            return res.status(401).json({
                 success: false,
                 message: "You cannot delete your own account"
             });
@@ -144,48 +141,72 @@ export const updateUserRoleController = async (req, res) => {
 // Grant custom permissions to user
 export const grantPermissionController = async (req, res) => {
     try {
-        const { userId, permissions } = req.body;
+        const { id } = req.params;
+        const { permissions } = req.body;
 
-        if (!userId || !Array.isArray(permissions)) {
-            return res.json({
-                success: false,
-                message: "User ID and permissions array are required"
-            });
+        if (!id || !Array.isArray(permissions)) {
+            return res.status(400).json({ success: false, message: "User ID and permissions array are required" });
         }
 
-        // Validate all permissions exist
         const allValidPermissions = Object.values(PERMISSIONS);
-        const invalidPerms = permissions.filter(p => !allValidPermissions.includes(p));
+        const invalidPerms = permissions.filter((p) => !allValidPermissions.includes(p));
 
-        if (invalidPerms.length > 0) {
-            return res.json({
-                success: false,
-                message: `Invalid permissions: ${invalidPerms.join(', ')}`
-            });
+        if (invalidPerms.length) {
+            return res.status(400).json({ success: false, message: `Invalid permissions: ${invalidPerms.join(", ")}` });
         }
 
-        const user = await updateUserPermissions(userId, permissions);
+        const user = await updateUserPermissions(id, permissions);
+        if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
-        if (!user) {
-            return res.json({
-                success: false,
-                message: "User not found"
-            });
-        }
-
-        res.json({
-            success: true,
-            message: "User permissions updated",
-            user: user
-        });
-
+        return res.json({ success: true, message: "User permissions updated", user });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+        return res.status(500).json({ success: false, message: error.message });
     }
 };
+// export const grantPermissionController = async (req, res) => {
+//     try {
+//         const { userId, permissions } = req.body;
+
+//         if (!userId || !Array.isArray(permissions)) {
+//             return res.json({
+//                 success: false,
+//                 message: "User ID and permissions array are required"
+//             });
+//         }
+
+//         // Validate all permissions exist
+//         const allValidPermissions = Object.values(PERMISSIONS);
+//         const invalidPerms = permissions.filter(p => !allValidPermissions.includes(p));
+
+//         if (invalidPerms.length > 0) {
+//             return res.json({
+//                 success: false,
+//                 message: `Invalid permissions: ${invalidPerms.join(', ')}`
+//             });
+//         }
+
+//         const user = await updateUserPermissions(userId, permissions);
+
+//         if (!user) {
+//             return res.json({
+//                 success: false,
+//                 message: "User not found"
+//             });
+//         }
+
+//         res.json({
+//             success: true,
+//             message: "User permissions updated",
+//             user: user
+//         });
+
+//     } catch (error) {
+//         res.status(500).json({
+//             success: false,
+//             message: error.message
+//         });
+//     }
+// };
 
 // Get admin dashboard statistics
 export const getAdminStatsController = async (req, res) => {

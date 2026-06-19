@@ -27,6 +27,7 @@ import gallery3 from '../img/gallery-3.jpg'
 import gallery4 from '../img/gallery-4.jpg'
 import gallery5 from '../img/gallery-5.jpg'
 import gallery6 from '../img/gallery-6.jpg'
+import ProductList from './ProductList.jsx';
 
 const Home = () => {
   return (
@@ -546,6 +547,8 @@ const Home = () => {
             </div>
 
           </div>
+
+          <ProductList />
         </div>
         {/* <!-- Projects End --> */}
 
