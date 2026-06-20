@@ -3,39 +3,46 @@ import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import {Link} from "react-router-dom";
-
+import { Link } from "react-router-dom";
+import { motion } from 'framer-motion';
 
 const ManagerDashboard = () => {
   const navigate = useNavigate();
-  const { userData, isLoggedIn, logout, backendUrl, hasPermission } = useContext(AppContext);
+  const { userData, isLoggedIn, isLoading, logout, backendUrl, hasPermission } = useContext(AppContext);
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [statsError, setStatsError] = useState(false);
   const [editingUserId, setEditingUserId] = useState(null);
   const [editFormData, setEditFormData] = useState({});
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (!isLoggedIn) {
-      navigate('/login');
-    } else {
-      fetchUsers();
-      fetchStats();
+    // Wait for auth state to finish resolving before redirecting,
+    // otherwise a logged-in manager gets bounced to /login on every refresh.
+    if (!isLoading) {
+      if (!isLoggedIn) {
+        navigate('/login');
+      } else {
+        fetchUsers();
+        fetchStats();
+      }
     }
-  }, [isLoggedIn, navigate]);
+  }, [isLoading, isLoggedIn, navigate]);
 
   // Fetch users from manager endpoint
   const fetchUsers = async () => {
+    setLoading(true);
     try {
       axios.defaults.withCredentials = true;
       const { data } = await axios.get(backendUrl + '/api/manager/users');
       if (data.success) {
         setUsers(data.users);
       } else {
-        toast.error(data.message);
+        toast.error(data.message || 'Failed to fetch users.');
       }
     } catch (error) {
-      toast.error('Failed to fetch users: ' + error.message);
+      toast.error(error.response?.data?.message || 'Failed to fetch users. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -43,24 +50,41 @@ const ManagerDashboard = () => {
 
   // Fetch manager statistics
   const fetchStats = async () => {
+    setStatsError(false);
     try {
       axios.defaults.withCredentials = true;
       const { data } = await axios.get(backendUrl + '/api/manager/stats');
       if (data.success) {
         setStats(data.stats);
+      } else {
+        setStatsError(true);
       }
     } catch (error) {
+      setStatsError(true);
       console.error('Failed to fetch stats:', error);
     }
   };
 
   // Update user information
   const handleUpdateUser = async (userId) => {
+    const name = editFormData.name?.trim();
+    const email = editFormData.email?.trim();
+
+    if (!name || !email) {
+      toast.error('Name and email cannot be empty.');
+      return;
+    }
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      toast.error('Please enter a valid email address.');
+      return;
+    }
+
+    setSaving(true);
     try {
       axios.defaults.withCredentials = true;
       const { data } = await axios.put(
         `${backendUrl}/api/manager/user/${userId}`,
-        editFormData
+        { name, email }
       );
       if (data.success) {
         toast.success('User updated successfully!');
@@ -68,10 +92,12 @@ const ManagerDashboard = () => {
         setEditFormData({});
         fetchUsers();
       } else {
-        toast.error(data.message);
+        toast.error(data.message || 'Failed to update user.');
       }
     } catch (error) {
-      toast.error('Failed to update user: ' + error.message);
+      toast.error(error.response?.data?.message || 'Failed to update user. Please try again.');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -89,6 +115,37 @@ const ManagerDashboard = () => {
     setEditingUserId(null);
     setEditFormData({});
   };
+
+  const handleEditKeyDown = (e, userId) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleUpdateUser(userId);
+    } else if (e.key === 'Escape') {
+      cancelEdit();
+    }
+  };
+
+  const fadeUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
+
+  const staggerContainer = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.1 } },
+  };
+
+  if (isLoading) {
+    return (
+      <div className='min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center'>
+        <div className='h-10 w-10 animate-spin rounded-full border-4 border-gray-600 border-t-purple-400' />
+      </div>
+    );
+  }
+
+  if (!isLoggedIn) {
+    return null;
+  }
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white'>
@@ -112,18 +169,33 @@ const ManagerDashboard = () => {
       </div>
 
       {/* Main Content */}
-      <div className='max-w-7xl mx-auto px-6 py-12'>
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+        className='max-w-7xl mx-auto px-6 py-12'
+      >
         {/* Welcome Card */}
-        <div className='bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg shadow-lg p-8 mb-8'>
+        <motion.div variants={fadeUp} className='bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg shadow-lg p-8 mb-8'>
           <h2 className='text-4xl font-bold mb-2'>
             Welcome Manager, {userData?.name || 'Manager'}!
           </h2>
           <p className='text-purple-100 text-lg'>You have limited control over user management</p>
-        </div>
+        </motion.div>
 
         {/* Statistics Cards */}
-        {stats && (
-          <div className='grid grid-cols-1 md:grid-cols-4 gap-6 mb-12'>
+        {statsError ? (
+          <motion.div variants={fadeUp} className='bg-gray-700 rounded-lg shadow-lg p-6 mb-12 text-center'>
+            <p className='text-gray-300 mb-3'>Couldn't load statistics.</p>
+            <button
+              onClick={fetchStats}
+              className='px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-semibold transition duration-300'
+            >
+              Retry
+            </button>
+          </motion.div>
+        ) : stats && (
+          <motion.div variants={fadeUp} className='grid grid-cols-1 md:grid-cols-4 gap-6 mb-12'>
             <div className='bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg shadow-lg p-6'>
               <p className='text-blue-200 text-sm uppercase tracking-wide mb-2'>Total Users</p>
               <p className='text-4xl font-bold text-white'>{stats.totalUsers}</p>
@@ -140,16 +212,16 @@ const ManagerDashboard = () => {
               <p className='text-red-200 text-sm uppercase tracking-wide mb-2'>Admins</p>
               <p className='text-4xl font-bold text-white'>{stats.adminCount}</p>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Users Table */}
-        <div className='bg-gray-700 rounded-lg shadow-lg p-6'>
+        <motion.div variants={fadeUp} className='bg-gray-700 rounded-lg shadow-lg p-6'>
           <h3 className='text-2xl font-bold mb-6 text-purple-400'>User Management (View & Edit Only)</h3>
 
           {loading ? (
-            <div className='text-center py-8'>
-              <p className='text-gray-300'>Loading users...</p>
+            <div className='flex justify-center py-8'>
+              <div className='h-8 w-8 animate-spin rounded-full border-4 border-gray-600 border-t-purple-400' />
             </div>
           ) : users.length === 0 ? (
             <div className='text-center py-8'>
@@ -177,7 +249,9 @@ const ManagerDashboard = () => {
                               type='text'
                               value={editFormData.name}
                               onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
-                              className='px-2 py-1 bg-gray-600 text-white rounded'
+                              onKeyDown={(e) => handleEditKeyDown(e, user._id)}
+                              autoFocus
+                              className='px-2 py-1 bg-gray-600 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-400'
                             />
                           </td>
                           <td className='px-4 py-3'>
@@ -185,7 +259,8 @@ const ManagerDashboard = () => {
                               type='email'
                               value={editFormData.email}
                               onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
-                              className='px-2 py-1 bg-gray-600 text-white rounded'
+                              onKeyDown={(e) => handleEditKeyDown(e, user._id)}
+                              className='px-2 py-1 bg-gray-600 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-400'
                             />
                           </td>
                           <td className='px-4 py-3'>
@@ -210,13 +285,15 @@ const ManagerDashboard = () => {
                             <div className='flex gap-2'>
                               <button
                                 onClick={() => handleUpdateUser(user._id)}
-                                className='px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm font-semibold transition duration-300'
+                                disabled={saving}
+                                className='px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm font-semibold transition duration-300 disabled:opacity-50'
                               >
-                                Save
+                                {saving ? 'Saving...' : 'Save'}
                               </button>
                               <button
                                 onClick={cancelEdit}
-                                className='px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded text-sm font-semibold transition duration-300'
+                                disabled={saving}
+                                className='px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded text-sm font-semibold transition duration-300 disabled:opacity-50'
                               >
                                 Cancel
                               </button>
@@ -246,13 +323,15 @@ const ManagerDashboard = () => {
                             </span>
                           </td>
                           <td className='px-4 py-3'>
-                            {hasPermission('update_users') && (
+                            {hasPermission('update_users') ? (
                               <button
                                 onClick={() => startEdit(user)}
                                 className='px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-semibold transition duration-300'
                               >
                                 Edit
                               </button>
+                            ) : (
+                              <span className='text-gray-500 text-sm'>—</span>
                             )}
                           </td>
                         </>
@@ -263,23 +342,22 @@ const ManagerDashboard = () => {
               </table>
             </div>
           )}
-        </div>
+        </motion.div>
 
         {/* Info Box */}
-        <div className='mt-8 bg-purple-900 bg-opacity-30 border border-purple-500 border-opacity-50 rounded-lg p-6'>
+        <motion.div variants={fadeUp} className='mt-8 bg-purple-900 bg-opacity-30 border border-purple-500 border-opacity-50 rounded-lg p-6'>
           <p className='text-purple-200'>
             <strong>Manager Permissions:</strong> As a manager, you can view all users and update basic information.
             You cannot delete users or change roles. For advanced operations, contact your administrator.
           </p>
-        </div>
+        </motion.div>
 
-          <div className='mt-8 bg-gray-700 rounded-lg p-6'>
-          <Link className='text-lg font-bold mb-4 text-red-400' to="/manager/products">
-            Manage Products
+        <motion.div variants={fadeUp} className='mt-8 bg-gray-700 rounded-lg p-6'>
+          <Link className='text-lg font-bold text-purple-400 hover:text-purple-300 transition-colors' to="/manager/products">
+            Manage Products →
           </Link>
-          </div>
-
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 };

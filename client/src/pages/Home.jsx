@@ -1,11 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Carousel from '../components/Carousel';
-import carousel1 from '../img/carousel-1.jpg'
-import carousel2 from '../img/carousel-2.jpg'
-import carousel3 from '../img/carousel-3.jpg'
 import aboutImg from '../img/about.jpg'
 import featureImg from '../img/feature.jpg'
 import quoteImg from '../img/quote.jpg'
@@ -21,828 +18,602 @@ import team3 from '../img/team-3.jpg'
 import testimonial1 from '../img/testimonial-1.jpg'
 import testimonial2 from '../img/testimonial-2.jpg'
 import testimonial3 from '../img/testimonial-3.jpg'
-import gallery1 from '../img/gallery-1.jpg'
-import gallery2 from '../img/gallery-2.jpg'
-import gallery3 from '../img/gallery-3.jpg'
-import gallery4 from '../img/gallery-4.jpg'
-import gallery5 from '../img/gallery-5.jpg'
-import gallery6 from '../img/gallery-6.jpg'
 import ProductList from './ProductList.jsx';
+import { motion } from "framer-motion";
+import Quote from './Quote.jsx';
 
 const Home = () => {
+  const navigate = useNavigate();
+
+  // ---- Reusable animation variants ----
+  const fadeUp = {
+    hidden: { opacity: 0, y: 50 },
+    visible: { opacity: 1, y: 0 },
+  };
+
+  const fadeLeft = {
+    hidden: { opacity: 0, x: -50 },
+    visible: { opacity: 1, x: 0 },
+  };
+
+  const fadeRight = {
+    hidden: { opacity: 0, x: 50 },
+    visible: { opacity: 1, x: 0 },
+  };
+
+  const staggerContainer = {
+    hidden: {},
+    visible: {
+      transition: { staggerChildren: 0.15 },
+    },
+  };
+
+  const cardItem = {
+    hidden: { opacity: 0, y: 40 },
+    visible: { opacity: 1, y: 0 },
+  };
+
+  const services = [
+    { img: img1, icon: 'fa-solar-panel', title: 'Solar Panels' },
+    { img: img2, icon: 'fa-wind', title: 'Wind Turbines' },
+    { img: img3, icon: 'fa-lightbulb', title: 'Hydropower Plants' },
+    { img: img4, icon: 'fa-solar-panel', title: 'Solar Panels' },
+    { img: img5, icon: 'fa-wind', title: 'Wind Turbines' },
+    { img: img6, icon: 'fa-lightbulb', title: 'Hydropower Plants' },
+  ];
+
+  const projects = [
+    { img: img6, tag: 'Solar Panels' },
+    { img: img5, tag: 'Wind Turbines' },
+    { img: img4, tag: 'Hydropower Plants' },
+    { img: img3, tag: 'Solar Panels' },
+    { img: img2, tag: 'Wind Turbines' },
+    { img: img1, tag: 'Hydropower Plants' },
+  ];
+
+  const team = [team1, team2, team3];
+
+  const testimonials = [testimonial1, testimonial2, testimonial3];
+
+  const filters = ['All', 'Solar Panels', 'Wind Turbines', 'Hydropower Plants'];
+
   return (
     <div className='flex flex-col items-center justify-center min-h-screen bg-[url("/bg_img.png")] bg-cover bg-center'>
       <Navbar />
-      {/* <Header /> */}
+
       <div className='w-full'>
 
-        {/* Topbar starts */}
+        {/* Topbar */}
         <div className="hidden lg:flex bg-gray-900 text-gray-300 text-sm">
           <div className="max-w-7xl mx-auto flex justify-between w-full px-6 py-2">
             <div className="flex gap-6">
               <span>📍 123 Street, New York, USA</span>
               <span>⏰ Mon - Fri : 09.00 AM - 09.00 PM</span>
             </div>
-            <div className="flex gap-4">
+            <div className="flex gap-4 items-center">
               <span>📞 +012 345 6789</span>
               <div className="flex gap-3">
-                <i className="fab fa-facebook-f"></i>
-                <i className="fab fa-twitter"></i>
-                <i className="fab fa-linkedin-in"></i>
-                <i className="fab fa-instagram"></i>
+                <a href="#" className="hover:text-blue-500 transition-colors"><i className="fab fa-facebook-f"></i></a>
+                <a href="#" className="hover:text-blue-500 transition-colors"><i className="fab fa-twitter"></i></a>
+                <a href="#" className="hover:text-blue-500 transition-colors"><i className="fab fa-linkedin-in"></i></a>
+                <a href="#" className="hover:text-blue-500 transition-colors"><i className="fab fa-instagram"></i></a>
               </div>
             </div>
           </div>
         </div>
-        {/* Topbar ends*/}
 
         <Carousel />
 
-
-        {/* <!-- Feature Start --> */}
-
-        <div className="max-w-7xl mx-auto py-12 px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-
-            <div className='shadow p-4 rounded'>
-              <div className="flex items-center mb-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 mr-4">
-                  <i className="fa fa-users text-white"></i>
+        {/* Feature / Stats Start */}
+        <div className="max-w-7xl mx-auto py-16 px-4">
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          >
+            {[
+              { icon: 'fa-users', value: '3453', label: 'Happy Customers' },
+              { icon: 'fa-check', value: '4234', label: 'Project Done' },
+              { icon: 'fa-award', value: '3123', label: 'Awards Win' },
+              { icon: 'fa-users-cog', value: '1831', label: 'Expert Workers' },
+            ].map((stat, i) => (
+              <motion.div
+                key={i}
+                variants={cardItem}
+                whileHover={{ y: -8, scale: 1.03 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white shadow-md p-6 rounded-xl hover:shadow-xl transition-shadow cursor-default"
+              >
+                <div className="flex items-center mb-4">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 mr-4 shrink-0">
+                    <i className={`fa ${stat.icon} text-white text-xl`}></i>
+                  </div>
+                  <h1 className="text-4xl font-bold text-gray-900">{stat.value}</h1>
                 </div>
-                <h1 className="text-4xl font-bold">3453</h1>
-              </div>
-              <h5 className="text-lg font-semibold mb-2">Happy Customers</h5>
-              <span className="text-gray-600">
-                Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit
-              </span>
-            </div>
-
-            <div className='shadow p-4 rounded'>
-              <div className="flex items-center mb-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 mr-4">
-                  <i className="fa fa-check text-white"></i>
-                </div>
-                <h1 className="text-4xl font-bold">4234</h1>
-              </div>
-              <h5 className="text-lg font-semibold mb-2">Project Done</h5>
-              <span className="text-gray-600">
-                Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit
-              </span>
-            </div>
-
-            <div className='shadow p-4 rounded'>
-              <div className="flex items-center mb-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 mr-4">
-                  <i className="fa fa-award text-white"></i>
-                </div>
-                <h1 className="text-4xl font-bold">3123</h1>
-              </div>
-              <h5 className="text-lg font-semibold mb-2">Awards Win</h5>
-              <span className="text-gray-600">
-                Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit
-              </span>
-            </div>
-
-            <div className='shadow p-4 rounded'>
-              <div className="flex items-center mb-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 mr-4">
-                  <i className="fa fa-users-cog text-white"></i>
-                </div>
-                <h1 className="text-4xl font-bold">1831</h1>
-              </div>
-              <h5 className="text-lg font-semibold mb-2">Expert Workers</h5>
-              <span className="text-gray-600">
-                Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit
-              </span>
-            </div>
-
-          </div>
+                <h5 className="text-lg font-semibold mb-2 text-gray-900">{stat.label}</h5>
+                <span className="text-gray-600 text-sm leading-relaxed">
+                  Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit
+                </span>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
+        {/* Feature End */}
 
-        {/* <!-- Feature Start --> */}
-
-
-        {/* <!-- About Start --> */}
-
-        <div className="w-full bg-gray-100 overflow-hidden my-12 p-3">
+        {/* About Start */}
+        <div className="w-full bg-gradient-to-b from-gray-50 to-white overflow-hidden py-16 px-4">
           <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
 
-              {/* Image Section */}
-              <div className="relative min-h-[400px]">
+              <motion.div
+                initial={{ opacity: 0, scale: 1.1 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true, amount: 0.4 }}
+                transition={{ duration: 0.8 }}
+                className="relative min-h-[320px] lg:min-h-[420px] rounded-xl overflow-hidden shadow-lg"
+              >
                 <img
                   src={aboutImg}
                   alt="About Us"
                   className="absolute inset-0 w-full h-full object-cover"
                 />
-              </div>
+              </motion.div>
 
-              {/* Text Section */}
-              <div className="py-12">
-                <div className="lg:pl-12">
-                  <h6 className="text-blue-600 font-semibold mb-2">About Us</h6>
-                  <h1 className="text-3xl md:text-4xl font-bold mb-6">
-                    25+ Years Experience In Solar & Renewable Energy Industry
-                  </h1>
+              <motion.div
+                variants={fadeRight}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.4 }}
+                transition={{ duration: 0.7 }}
+              >
+                <h6 className="text-blue-600 font-semibold mb-2 tracking-wide uppercase text-sm">About Us</h6>
+                <h1 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900 leading-tight">
+                  25+ Years Experience In Solar &amp; Renewable Energy Industry
+                </h1>
 
-                  <p className="text-gray-700 mb-4">
-                    Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit. Aliqu
-                    diam amet diam et eos. Clita erat ipsum et lorem et sit, sed stet
-                    lorem sit clita duo justo erat amet
-                  </p>
+                <p className="text-gray-700 mb-5 leading-relaxed">
+                  Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit. Aliqu
+                  diam amet diam et eos. Clita erat ipsum et lorem et sit, sed stet
+                  lorem sit clita duo justo erat amet
+                </p>
 
-                  <p className="flex items-center mb-2">
-                    <i className="fa fa-check-circle text-blue-600 mr-3"></i>
-                    Diam dolor diam ipsum
-                  </p>
-                  <p className="flex items-center mb-2">
-                    <i className="fa fa-check-circle text-blue-600 mr-3"></i>
-                    Aliqu diam amet diam et eos
-                  </p>
-                  <p className="flex items-center mb-4">
-                    <i className="fa fa-check-circle text-blue-600 mr-3"></i>
-                    Tempor erat elitr rebum at clita
-                  </p>
+                <ul className="space-y-3 mb-6">
+                  {[
+                    'Diam dolor diam ipsum',
+                    'Aliqu diam amet diam et eos',
+                    'Tempor erat elitr rebum at clita',
+                  ].map((text, i) => (
+                    <li key={i} className="flex items-center text-gray-700">
+                      <i className="fa fa-check-circle text-blue-600 mr-3"></i>
+                      {text}
+                    </li>
+                  ))}
+                </ul>
 
-                  <a
-                    href="#services"
-                    className="inline-block mt-4 rounded-full bg-blue-600 px-8 py-3 text-white font-semibold hover:bg-blue-700 transition"
-                  >
-                    Explore More
-                  </a>
-                </div>
-              </div>
+                <button
+                  onClick={() => navigate("/service")}
+                  className="bg-blue-600 text-white px-7 py-3 rounded-full font-medium
+                   hover:bg-blue-700 hover:shadow-lg transition-all duration-300 cursor-pointer"
+                >
+                  Explore More
+                </button>
+              </motion.div>
 
             </div>
           </div>
         </div>
+        {/* About End */}
 
-        {/* <!-- About End --> */}
-
-
-        {/* <!-- Service Start --> */}
-        <div id="services" className="max-w-7xl mx-auto py-12 px-4">
-          {/* Heading */}
-          <div className="text-center max-w-xl mx-auto mb-12">
-            <h6 className="text-blue-600 font-semibold mb-2">Our Services</h6>
-            <h1 className="text-3xl md:text-4xl font-bold">
+        {/* Service Start */}
+        <div id="services" className="max-w-7xl mx-auto py-16 px-4">
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.6 }}
+            className="text-center max-w-xl mx-auto mb-14"
+          >
+            <h6 className="text-blue-600 font-semibold mb-2 tracking-wide uppercase text-sm">Our Services</h6>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
               We Are Pioneers In The World Of Renewable Energy
             </h1>
-          </div>
+          </motion.div>
 
-          {/* Services Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-
-            {/* Service Item */}
-            <div className="rounded overflow-hidden shadow">
-              <img className="w-full" src={img1} alt="Solar Panel Service" />
-              <div className="relative p-6 pt-0">
-                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-blue-600 text-white -mt-8 mb-4">
-                  <i className="fa fa-solar-panel text-2xl"></i>
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
+            {services.map((service, i) => (
+              <motion.div
+                key={i}
+                variants={cardItem}
+                whileHover={{ y: -8 }}
+                transition={{ duration: 0.3 }}
+                className="rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow bg-white"
+              >
+                <div className="overflow-hidden">
+                  <img
+                    className="w-full h-48 object-cover hover:scale-110 transition-transform duration-500"
+                    src={service.img}
+                    alt={service.title}
+                  />
                 </div>
-                <h4 className="text-xl font-semibold mb-3">Solar Panels</h4>
-                <p className="text-gray-600 mb-3">
-                  Stet stet justo dolor sed duo. Ut clita sea sit ipsum diam lorem diam.
-                </p>
-                <a href="" className="text-sm font-medium text-blue-600 inline-flex items-center">
-                  Read More <i className="fa fa-arrow-right ml-2"></i>
-                </a>
-                <div className="mt-4">
-                  {/* <button className="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">
-            Buy Now
-          </button> */}
-                </div>
-              </div>
-            </div>
-
-            {/* Service Item */}
-            <div className="rounded overflow-hidden shadow">
-              <img className="w-full" src={img2} alt="Wind Turbine Service" />
-              <div className="relative p-6 pt-0">
-                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-blue-600 text-white -mt-8 mb-4">
-                  <i className="fa fa-wind text-2xl"></i>
-                </div>
-                <h4 className="text-xl font-semibold mb-3">Wind Turbines</h4>
-                <p className="text-gray-600 mb-3">
-                  Stet stet justo dolor sed duo. Ut clita sea sit ipsum diam lorem diam.
-                </p>
-                <a href="" className="text-sm font-medium text-blue-600 inline-flex items-center">
-                  Read More <i className="fa fa-arrow-right ml-2"></i>
-                </a>
-              </div>
-            </div>
-
-            {/* Service Item */}
-            <div className="rounded overflow-hidden shadow">
-              <img className="w-full" src={img3} alt="Hydropower Service" />
-              <div className="relative p-6 pt-0">
-                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-blue-600 text-white -mt-8 mb-4">
-                  <i className="fa fa-lightbulb text-2xl"></i>
-                </div>
-                <h4 className="text-xl font-semibold mb-3">Hydropower Plants</h4>
-                <p className="text-gray-600 mb-3">
-                  Stet stet justo dolor sed duo. Ut clita sea sit ipsum diam lorem diam.
-                </p>
-                <a href="" className="text-sm font-medium text-blue-600 inline-flex items-center">
-                  Read More <i className="fa fa-arrow-right ml-2"></i>
-                </a>
-              </div>
-            </div>
-
-            {/* Service Item */}
-            <div className="rounded overflow-hidden shadow">
-              <img className="w-full" src={img4} alt="Solar Energy" />
-              <div className="relative p-6 pt-0">
-                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-blue-600 text-white -mt-8 mb-4">
-                  <i className="fa fa-solar-panel text-2xl"></i>
-                </div>
-                <h4 className="text-xl font-semibold mb-3">Solar Panels</h4>
-                <p className="text-gray-600 mb-3">
-                  Stet stet justo dolor sed duo. Ut clita sea sit ipsum diam lorem diam.
-                </p>
-                <a href="" className="text-sm font-medium text-blue-600 inline-flex items-center">
-                  Read More <i className="fa fa-arrow-right ml-2"></i>
-                </a>
-                <div className="mt-4">
-                  {/* <button className="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">
-            Buy Now
-          </button> */}
-                </div>
-              </div>
-            </div>
-
-            {/* Service Item */}
-            <div className="rounded overflow-hidden shadow">
-              <img className="w-full" src={img5} alt="" />
-              <div className="relative p-6 pt-0">
-                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-blue-600 text-white -mt-8 mb-4">
-                  <i className="fa fa-wind text-2xl"></i>
-                </div>
-                <h4 className="text-xl font-semibold mb-3">Wind Turbines</h4>
-                <p className="text-gray-600 mb-3">
-                  Stet stet justo dolor sed duo. Ut clita sea sit ipsum diam lorem diam.
-                </p>
-                <a href="" className="text-sm font-medium text-blue-600 inline-flex items-center">
-                  Read More <i className="fa fa-arrow-right ml-2"></i>
-                </a>
-              </div>
-            </div>
-
-            {/* Service Item */}
-            <div className="rounded overflow-hidden shadow">
-              <img className="w-full" src={img6} alt="Renewable Energy" />
-              <div className="relative p-6 pt-0">
-                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-blue-600 text-white -mt-8 mb-4">
-                  <i className="fa fa-lightbulb text-2xl"></i>
-                </div>
-                <h4 className="text-xl font-semibold mb-3">Hydropower Plants</h4>
-                <p className="text-gray-600 mb-3">
-                  Stet stet justo dolor sed duo. Ut clita sea sit ipsum diam lorem diam.
-                </p>
-                <a href="" className="text-sm font-medium text-blue-600 inline-flex items-center">
-                  Read More <i className="fa fa-arrow-right ml-2"></i>
-                </a>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        {/* <!-- Service End --> */}
-
-
-        {/* <!-- Feature Start --> */}
-        <div className="w-full bg-gray-100 overflow-hidden my-12">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2">
-
-              {/* Text Section */}
-              <div className="py-12">
-                <div className="lg:pl-12">
-                  <h6 className="text-blue-600 font-semibold mb-2">Why Choose Us!</h6>
-                  <h1 className="text-3xl md:text-4xl font-bold mb-6">
-                    Complete Commercial & Residential Solar Systems
-                  </h1>
-                  <p className="text-gray-700 mb-8">
-                    Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit. Aliqu
-                    diam amet diam et eos. Clita erat ipsum et lorem et sit, sed stet
-                    lorem sit clita duo justo erat amet
-                  </p>
-
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="flex items-center">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600">
-                        <i className="fa fa-check text-white"></i>
-                      </div>
-                      <div className="ml-4">
-                        <p className="text-sm text-gray-600">Quality</p>
-                        <h5 className="font-semibold">Services</h5>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600">
-                        <i className="fa fa-user-check text-white"></i>
-                      </div>
-                      <div className="ml-4">
-                        <p className="text-sm text-gray-600">Expert</p>
-                        <h5 className="font-semibold">Workers</h5>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600">
-                        <i className="fa fa-drafting-compass text-white"></i>
-                      </div>
-                      <div className="ml-4">
-                        <p className="text-sm text-gray-600">Free</p>
-                        <h5 className="font-semibold">Consultation</h5>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600">
-                        <i className="fa fa-headphones text-white"></i>
-                      </div>
-                      <div className="ml-4">
-                        <p className="text-sm text-gray-600">Customer</p>
-                        <h5 className="font-semibold">Support</h5>
-                      </div>
-                    </div>
+                <div className="relative p-6 pt-0">
+                  <div className="flex items-center justify-center w-16 h-16 rounded-full bg-blue-600 text-white -mt-8 mb-4 shadow-md">
+                    <i className={`fa ${service.icon} text-2xl`}></i>
                   </div>
+                  <h4 className="text-xl font-semibold mb-3 text-gray-900">{service.title}</h4>
+                  <p className="text-gray-600 mb-3 leading-relaxed">
+                    Stet stet justo dolor sed duo. Ut clita sea sit ipsum diam lorem diam.
+                  </p>
+                  <a href="#" className="text-sm font-medium text-blue-600 inline-flex items-center hover:text-blue-700 transition-colors">
+                    Read More <i className="fa fa-arrow-right ml-2 text-xs"></i>
+                  </a>
                 </div>
-              </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+        {/* Service End */}
 
-              {/* Image Section */}
-              <div className="relative min-h-[400px]">
+        {/* Feature/Why Choose Us Start */}
+        <div className="w-full bg-gray-50 overflow-hidden py-16">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+
+              <motion.div
+                variants={fadeLeft}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.4 }}
+                transition={{ duration: 0.7 }}
+              >
+                <h6 className="text-blue-600 font-semibold mb-2 tracking-wide uppercase text-sm">Why Choose Us!</h6>
+                <h1 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900 leading-tight">
+                  Complete Commercial &amp; Residential Solar Systems
+                </h1>
+                <p className="text-gray-700 mb-8 leading-relaxed">
+                  Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit. Aliqu
+                  diam amet diam et eos. Clita erat ipsum et lorem et sit, sed stet
+                  lorem sit clita duo justo erat amet
+                </p>
+
+                <motion.div
+                  variants={staggerContainer}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, amount: 0.5 }}
+                  className="grid grid-cols-2 gap-6"
+                >
+                  {[
+                    { icon: 'fa-check', top: 'Quality', bottom: 'Services' },
+                    { icon: 'fa-user-check', top: 'Expert', bottom: 'Workers' },
+                    { icon: 'fa-drafting-compass', top: 'Free', bottom: 'Consultation' },
+                    { icon: 'fa-headphones', top: 'Customer', bottom: 'Support' },
+                  ].map((item, i) => (
+                    <motion.div key={i} variants={cardItem} className="flex items-center">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 shrink-0">
+                        <i className={`fa ${item.icon} text-white`}></i>
+                      </div>
+                      <div className="ml-4">
+                        <p className="text-sm text-gray-600">{item.top}</p>
+                        <h5 className="font-semibold text-gray-900">{item.bottom}</h5>
+                      </div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, scale: 1.1 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true, amount: 0.4 }}
+                transition={{ duration: 0.8 }}
+                className="relative min-h-[320px] lg:min-h-[420px] rounded-xl overflow-hidden shadow-lg"
+              >
                 <img
                   src={featureImg}
                   alt="Features"
                   className="absolute inset-0 w-full h-full object-cover"
                 />
-              </div>
+              </motion.div>
 
             </div>
           </div>
         </div>
+        {/* Feature End */}
 
-        {/* <!-- Feature End --> */}
-
-
-        {/* <!-- Projects Start --> */}
-        <div className="max-w-7xl mx-auto py-12 px-4">
-          {/* Heading */}
-          <div className="text-center max-w-xl mx-auto mb-12">
-            <h6 className="text-blue-600 font-semibold">Our Projects</h6>
-            <h1 className="text-3xl md:text-4xl font-bold mt-2">
+        {/* Projects Start */}
+        <div className="max-w-7xl mx-auto py-16 px-4">
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.6 }}
+            className="text-center max-w-xl mx-auto mb-10"
+          >
+            <h6 className="text-blue-600 font-semibold tracking-wide uppercase text-sm">Our Projects</h6>
+            <h1 className="text-3xl md:text-4xl font-bold mt-2 text-gray-900">
               Visit Our Latest Solar And Renewable Energy Projects
             </h1>
-          </div>
+          </motion.div>
 
           {/* Filters */}
           <div className="text-center mb-12">
-            <ul className="flex flex-wrap justify-center gap-4">
-              <li className="cursor-pointer font-medium text-blue-600">All</li>
-              <li className="cursor-pointer font-medium text-gray-700">Solar Panels</li>
-              <li className="cursor-pointer font-medium text-gray-700">Wind Turbines</li>
-              <li className="cursor-pointer font-medium text-gray-700">
-                Hydropower Plants
-              </li>
+            <ul className="flex flex-wrap justify-center gap-2 sm:gap-4">
+              {filters.map((filter, i) => (
+                <li
+                  key={filter}
+                  className={`cursor-pointer font-medium px-4 py-2 rounded-full transition-colors ${
+                    i === 0
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                  }`}
+                >
+                  {filter}
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Portfolio Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-
-            {/* Item 1 */}
-            <div>
-              <div className="relative rounded overflow-hidden">
-                <img src={img6} alt="Renewable Energy" className="w-full" />
-                <div className="absolute inset-0 flex items-center justify-center gap-3 bg-black/50 opacity-0 hover:opacity-100 transition">
-                  <a className="flex h-12 w-12 items-center justify-center rounded-full border border-white text-white">
-                    <i className="fa fa-eye"></i>
-                  </a>
-                  <a className="flex h-12 w-12 items-center justify-center rounded-full border border-white text-white">
-                    <i className="fa fa-link"></i>
-                  </a>
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
+            {projects.map((project, i) => (
+              <motion.div key={i} variants={cardItem} className="group">
+                <div className="relative rounded-xl overflow-hidden shadow-md">
+                  <img
+                    src={project.img}
+                    alt={project.tag}
+                    className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center gap-3 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <a href="#" className="flex h-12 w-12 items-center justify-center rounded-full border border-white text-white hover:bg-white hover:text-blue-600 transition-colors">
+                      <i className="fa fa-eye"></i>
+                    </a>
+                    <a href="#" className="flex h-12 w-12 items-center justify-center rounded-full border border-white text-white hover:bg-white hover:text-blue-600 transition-colors">
+                      <i className="fa fa-link"></i>
+                    </a>
+                  </div>
                 </div>
-              </div>
-              <div className="pt-4">
-                <p className="text-blue-600 mb-1">Solar Panels</p>
-                <hr className="w-16 border-blue-600 mb-2" />
-                <h5 className="font-semibold">
-                  We Are pioneers of solar & renewable energy industry
-                </h5>
-              </div>
-            </div>
-
-            {/* Item 2 */}
-            <div>
-              <div className="relative rounded overflow-hidden">
-                <img src={img5} alt="Wind Energy" className="w-full" />
-                <div className="absolute inset-0 flex items-center justify-center gap-3 bg-black/50 opacity-0 hover:opacity-100 transition">
-                  <a className="flex h-12 w-12 items-center justify-center rounded-full border border-white text-white">
-                    <i className="fa fa-eye"></i>
-                  </a>
-                  <a className="flex h-12 w-12 items-center justify-center rounded-full border border-white text-white">
-                    <i className="fa fa-link"></i>
-                  </a>
+                <div className="pt-4">
+                  <p className="text-blue-600 mb-1 font-medium">{project.tag}</p>
+                  <hr className="w-16 border-blue-600 mb-2" />
+                  <h5 className="font-semibold text-gray-900">
+                    We Are pioneers of solar &amp; renewable energy industry
+                  </h5>
                 </div>
-              </div>
-              <div className="pt-4">
-                <p className="text-blue-600 mb-1">Wind Turbines</p>
-                <hr className="w-16 border-blue-600 mb-2" />
-                <h5 className="font-semibold">
-                  We Are pioneers of solar & renewable energy industry
-                </h5>
-              </div>
-            </div>
-
-            {/* Item 3 */}
-            <div>
-              <div className="relative rounded overflow-hidden">
-                <img src={img4} alt="Solar Energy" className="w-full" />
-                <div className="absolute inset-0 flex items-center justify-center gap-3 bg-black/50 opacity-0 hover:opacity-100 transition">
-                  <a className="flex h-12 w-12 items-center justify-center rounded-full border border-white text-white">
-                    <i className="fa fa-eye"></i>
-                  </a>
-                  <a className="flex h-12 w-12 items-center justify-center rounded-full border border-white text-white">
-                    <i className="fa fa-link"></i>
-                  </a>
-                </div>
-              </div>
-              <div className="pt-4">
-                <p className="text-blue-600 mb-1">Hydropower Plants</p>
-                <hr className="w-16 border-blue-600 mb-2" />
-                <h5 className="font-semibold">
-                  We Are pioneers of solar & renewable energy industry
-                </h5>
-              </div>
-            </div>
-
-            {/* Item 4 */}
-            <div>
-              <div className="relative rounded overflow-hidden">
-                <img src={img3} alt="Hydropower Service" className="w-full" />
-                <div className="absolute inset-0 flex items-center justify-center gap-3 bg-black/50 opacity-0 hover:opacity-100 transition">
-                  <a className="flex h-12 w-12 items-center justify-center rounded-full border border-white text-white">
-                    <i className="fa fa-eye"></i>
-                  </a>
-                  <a className="flex h-12 w-12 items-center justify-center rounded-full border border-white text-white">
-                    <i className="fa fa-link"></i>
-                  </a>
-                </div>
-              </div>
-              <div className="pt-4">
-                <p className="text-blue-600 mb-1">Solar Panels</p>
-                <hr className="w-16 border-blue-600 mb-2" />
-                <h5 className="font-semibold">
-                  We Are pioneers of solar & renewable energy industry
-                </h5>
-              </div>
-            </div>
-
-            {/* Item 5 */}
-            <div>
-              <div className="relative rounded overflow-hidden">
-                <img src={img2} alt="Wind Turbine Service" className="w-full" />
-                <div className="absolute inset-0 flex items-center justify-center gap-3 bg-black/50 opacity-0 hover:opacity-100 transition">
-                  <a className="flex h-12 w-12 items-center justify-center rounded-full border border-white text-white">
-                    <i className="fa fa-eye"></i>
-                  </a>
-                  <a className="flex h-12 w-12 items-center justify-center rounded-full border border-white text-white">
-                    <i className="fa fa-link"></i>
-                  </a>
-                </div>
-              </div>
-              <div className="pt-4">
-                <p className="text-blue-600 mb-1">Wind Turbines</p>
-                <hr className="w-16 border-blue-600 mb-2" />
-                <h5 className="font-semibold">
-                  We Are pioneers of solar & renewable energy industry
-                </h5>
-              </div>
-            </div>
-
-            {/* Item 6 */}
-            <div>
-              <div className="relative rounded overflow-hidden">
-                <img src={img1} alt="Solar Panel Service" className="w-full" />
-                <div className="absolute inset-0 flex items-center justify-center gap-3 bg-black/50 opacity-0 hover:opacity-100 transition">
-                  <a className="flex h-12 w-12 items-center justify-center rounded-full border border-white text-white">
-                    <i className="fa fa-eye"></i>
-                  </a>
-                  <a className="flex h-12 w-12 items-center justify-center rounded-full border border-white text-white">
-                    <i className="fa fa-link"></i>
-                  </a>
-                </div>
-              </div>
-              <div className="pt-4">
-                <p className="text-blue-600 mb-1">Hydropower Plants</p>
-                <hr className="w-16 border-blue-600 mb-2" />
-                <h5 className="font-semibold">
-                  We Are pioneers of solar & renewable energy industry
-                </h5>
-              </div>
-            </div>
-
-          </div>
+              </motion.div>
+            ))}
+          </motion.div>
 
           <ProductList />
         </div>
-        {/* <!-- Projects End --> */}
+        {/* Projects End */}
 
+        {/* Quote Start */}
+        {/* <div id="quote" className="w-full overflow-hidden py-4">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-xl overflow-hidden shadow-xl">
 
-        {/* <!-- Quote Start --> */}
-        <div
-          id="quote"
-          className="w-full overflow-hidden my-12 lg:px-0"
-        >
-          <div className="max-w-7xl mx-auto px-4 lg:px-0">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-
-              {/* Image Section */}
-              <div
-                className="relative min-h-[400px] wow fadeIn"
-                data-wow-delay="0.1s"
+              <motion.div
+                variants={fadeLeft}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.4 }}
+                transition={{ duration: 0.7 }}
+                className="relative min-h-[320px] lg:min-h-[480px]"
               >
                 <img
                   src={quoteImg}
                   alt="Get Quote"
                   className="absolute inset-0 w-full h-full object-cover"
                 />
-              </div>
+              </motion.div>
 
-              {/* Form Section */}
-              <div
-                className="py-12 wow fadeIn"
-                data-wow-delay="0.5s"
+              <motion.div
+                variants={fadeRight}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.4 }}
+                transition={{ duration: 0.7 }}
+                className="py-12 px-6 lg:px-12 bg-white"
               >
-                <div className="lg:p-12 lg:pr-0">
-                  <h6 className="text-blue-600 font-semibold">Free Quote</h6>
-                  <h1 className="text-3xl font-bold mb-4">Get A Free Quote</h1>
-                  <p className="text-gray-600 mb-6">
-                    Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit.
-                    Aliqu diam amet diam et eos. Clita erat ipsum et lorem et sit,
-                    sed stet lorem sit clita duo justo erat amet
-                  </p>
+                <h6 className="text-blue-600 font-semibold tracking-wide uppercase text-sm">Free Quote</h6>
+                <h1 className="text-3xl font-bold mb-4 text-gray-900">Get A Free Quote</h1>
+                <p className="text-gray-600 mb-6 leading-relaxed">
+                  Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit.
+                  Aliqu diam amet diam et eos. Clita erat ipsum et lorem et sit,
+                  sed stet lorem sit clita duo justo erat amet
+                </p>
 
-                  <form>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <input
-                        type="text"
-                        placeholder="Your Name"
-                        className="h-[55px] w-full rounded border-0 px-4 focus:outline-none shadow-2xs"
-                      />
+                <form className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    placeholder="Your Name"
+                    className="h-[52px] w-full rounded-lg border border-gray-200 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
+                  />
+                  <input
+                    type="email"
+                    placeholder="Your Email"
+                    className="h-[52px] w-full rounded-lg border border-gray-200 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Your Mobile"
+                    className="h-[52px] w-full rounded-lg border border-gray-200 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
+                  />
+                  <select
+                    className="h-[52px] w-full rounded-lg border border-gray-200 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow text-gray-700"
+                    defaultValue=""
+                  >
+                    <option value="" disabled>Select A Service</option>
+                    <option value="1">Service 1</option>
+                    <option value="2">Service 2</option>
+                    <option value="3">Service 3</option>
+                  </select>
+                  <textarea
+                    placeholder="Special Note"
+                    rows={4}
+                    className="col-span-1 sm:col-span-2 w-full rounded-lg border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow resize-none"
+                  />
+                  <div className="col-span-1 sm:col-span-2">
+                    <motion.button
+                      type="submit"
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="bg-blue-600 text-white rounded-full px-8 py-3 font-medium hover:bg-blue-700 transition-colors"
+                    >
+                      Submit
+                    </motion.button>
+                  </div>
+                </form>
+              </motion.div>
 
-                      <input
-                        type="email"
-                        placeholder="Your Email"
-                        className="h-[55px] w-full rounded border-0 px-4 focus:outline-none shadow-2xs"
-                      />
+            </div>
+          </div>
+        </div> */}
+        <Quote />
+        {/* Quote End */}
 
-                      <input
-                        type="text"
-                        placeholder="Your Mobile"
-                        className="h-[55px] w-full rounded border-0 px-4 focus:outline-none shadow-2xs"
-                      />
+        {/* Team Start */}
+        <div className="w-full py-16">
+          <div className="max-w-7xl mx-auto px-4">
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.6 }}
+              className="text-center mx-auto mb-14"
+              style={{ maxWidth: "600px" }}
+            >
+              <h6 className="text-blue-600 font-semibold tracking-wide uppercase text-sm">Team Member</h6>
+              <h1 className="text-3xl font-bold mt-2 text-gray-900">Experienced Team Members</h1>
+            </motion.div>
 
-                      <select
-                        className="h-[55px] w-full rounded border-0 px-4 focus:outline-none shadow-2xs"
-                        defaultValue=""
-                      >
-                        <option value="" disabled>
-                          Select A Service
-                        </option>
-                        <option value="1">Service 1</option>
-                        <option value="2">Service 2</option>
-                        <option value="3">Service 3</option>
-                      </select>
-
-                      <textarea
-                        placeholder="Special Note"
-                        className="col-span-1 sm:col-span-2 w-full rounded border-0 px-4 py-3 focus:outline-none shadow-2xs"
-                      />
-
-                      <div className="col-span-1 sm:col-span-2">
-                        <button
-                          type="submit"
-                          className="bg-blue-600 text-white rounded-full px-7 py-3 rounded hover:bg-blue-700 transition"
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            >
+              {team.map((photo, i) => (
+                <motion.div
+                  key={i}
+                  variants={cardItem}
+                  whileHover={{ y: -6 }}
+                  transition={{ duration: 0.3 }}
+                  className="rounded-xl overflow-hidden bg-white shadow-md hover:shadow-xl transition-shadow"
+                >
+                  <div className="flex">
+                    <img
+                      src={photo}
+                      alt="Team Member"
+                      className="w-3/4 h-64 object-cover"
+                    />
+                    <div className="w-1/4 flex flex-col items-center justify-center gap-3 bg-gray-50">
+                      {['facebook-f', 'twitter', 'instagram'].map((icon) => (
+                        <a
+                          key={icon}
+                          href="#"
+                          className="w-9 h-9 flex items-center justify-center rounded-full border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-colors"
                         >
-                          Submit
-                        </button>
-                      </div>
+                          <i className={`fab fa-${icon}`}></i>
+                        </a>
+                      ))}
                     </div>
-                  </form>
-                </div>
-              </div>
-
-            </div>
+                  </div>
+                  <div className="p-4">
+                    <h5 className="font-semibold text-gray-900">Full Name</h5>
+                    <span className="text-gray-500 text-sm">Designation</span>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
         </div>
-        {/* <!-- Quote End --> */}
+        {/* Team End */}
 
-
-        {/* <!-- Team Start --> */}
-        <div className="w-full py-12">
+        {/* Testimonial Start */}
+        <div className="w-full py-16 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4">
-            <div
-              className="text-center mx-auto mb-12 wow fadeInUp"
-              data-wow-delay="0.1s"
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.6 }}
+              className="text-center mx-auto mb-14"
               style={{ maxWidth: "600px" }}
             >
-              <h6 className="text-blue-600 font-semibold">Team Member</h6>
-              <h1 className="text-3xl font-bold mt-2">Experienced Team Members</h1>
-            </div>
+              <h6 className="text-blue-600 font-semibold tracking-wide uppercase text-sm">Testimonial</h6>
+              <h1 className="text-3xl font-bold mt-2 text-gray-900">What Our Clients Say!</h1>
+            </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Team Member 1 */}
-              <div className="wow fadeInUp" data-wow-delay="0.1s">
-                <div className="rounded overflow-hidden bg-white shadow">
-                  <div className="flex">
-                    <img
-                      src={team1}
-                      alt="Team Member"
-                      className="w-3/4 object-cover"
-                    />
-                    <div className="w-1/4 flex flex-col items-center justify-start pt-3 space-y-3">
-                      <a className="w-10 h-10 flex items-center justify-center rounded-full border border-blue-600 text-blue-600" href="">
-                        <i className="fab fa-facebook-f"></i>
-                      </a>
-                      <a className="w-10 h-10 flex items-center justify-center rounded-full border border-blue-600 text-blue-600" href="">
-                        <i className="fab fa-twitter"></i>
-                      </a>
-                      <a className="w-10 h-10 flex items-center justify-center rounded-full border border-blue-600 text-blue-600" href="">
-                        <i className="fab fa-instagram"></i>
-                      </a>
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <h5 className="font-semibold">Full Name</h5>
-                    <span className="text-gray-500">Designation</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Team Member 2 */}
-              <div className="wow fadeInUp" data-wow-delay="0.3s">
-                <div className="rounded overflow-hidden bg-white shadow">
-                  <div className="flex">
-                    <img
-                      src={team2}
-                      alt="Team Member"
-                      className="w-3/4 object-cover"
-                    />
-                    <div className="w-1/4 flex flex-col items-center justify-start pt-3 space-y-3">
-                      <a className="w-10 h-10 flex items-center justify-center rounded-full border border-blue-600 text-blue-600" href="">
-                        <i className="fab fa-facebook-f"></i>
-                      </a>
-                      <a className="w-10 h-10 flex items-center justify-center rounded-full border border-blue-600 text-blue-600" href="">
-                        <i className="fab fa-twitter"></i>
-                      </a>
-                      <a className="w-10 h-10 flex items-center justify-center rounded-full border border-blue-600 text-blue-600" href="">
-                        <i className="fab fa-instagram"></i>
-                      </a>
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <h5 className="font-semibold">Full Name</h5>
-                    <span className="text-gray-500">Designation</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Team Member 3 */}
-              <div className="wow fadeInUp" data-wow-delay="0.5s">
-                <div className="rounded overflow-hidden bg-white shadow">
-                  <div className="flex">
-                    <img
-                      src={team3}
-                      alt="Team Member"
-                      className="w-3/4 object-cover"
-                    />
-                    <div className="w-1/4 flex flex-col items-center justify-start pt-3 space-y-3">
-                      <a className="w-10 h-10 flex items-center justify-center rounded-full border border-blue-600 text-blue-600" href="">
-                        <i className="fab fa-facebook-f"></i>
-                      </a>
-                      <a className="w-10 h-10 flex items-center justify-center rounded-full border border-blue-600 text-blue-600" href="">
-                        <i className="fab fa-twitter"></i>
-                      </a>
-                      <a className="w-10 h-10 flex items-center justify-center rounded-full border border-blue-600 text-blue-600" href="">
-                        <i className="fab fa-instagram"></i>
-                      </a>
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <h5 className="font-semibold">Full Name</h5>
-                    <span className="text-gray-500">Designation</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* <!-- Team End --> */}
-
-
-        {/* <!-- Testimonial Start --> */}
-        <div className="w-full py-12">
-          <div className="max-w-7xl mx-auto px-4">
-            <div
-              className="text-center mx-auto mb-12 wow fadeInUp"
-              data-wow-delay="0.1s"
-              style={{ maxWidth: "600px" }}
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-8"
             >
-              <h6 className="text-blue-600 font-semibold">Testimonial</h6>
-              <h1 className="text-3xl font-bold mt-2">What Our Clients Say!</h1>
-            </div>
-
-            <div className="flex gap-6 overflow-x-auto wow fadeInUp" data-wow-delay="0.1s">
-
-              {/* Testimonial 1 */}
-              <div className="min-w-[300px] text-center">
-                <div className="relative">
-                  <img
-                    src={testimonial1}
-                    alt="Client Testimonial"
-                    className="w-24 h-24 rounded-full mx-auto mb-6 object-cover"
-                  />
-                  <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center absolute left-1/2 -translate-x-1/2 -bottom-2">
-                    <i className="fa fa-quote-left text-white"></i>
+              {testimonials.map((photo, i) => (
+                <motion.div key={i} variants={cardItem} className="text-center pt-10">
+                  <div className="relative">
+                    <img
+                      src={photo}
+                      alt="Client Testimonial"
+                      className="w-20 h-20 rounded-full mx-auto mb-0 object-cover border-4 border-white shadow-md relative z-10 -mb-10"
+                    />
                   </div>
-                </div>
-                <div className="bg-white rounded p-6 shadow text-center">
-                  <p className="text-gray-600 mb-4">
-                    Clita clita tempor justo dolor ipsum amet kasd amet duo justo duo duo
-                    labore sed sed. Magna ut diam sit et amet stet eos sed clita erat
-                    magna elitr erat sit sit erat at rebum justo sea clita.
-                  </p>
-                  <h5 className="font-semibold">Client Name</h5>
-                  <span className="italic text-gray-500">Profession</span>
-                </div>
-              </div>
-
-              {/* Testimonial 2 */}
-              <div className="min-w-[300px] text-center">
-                <div className="relative">
-                  <img
-                    src={testimonial2}
-                    alt="Client Testimonial"
-                    className="w-24 h-24 rounded-full mx-auto mb-6 object-cover"
-                  />
-                  <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center absolute left-1/2 -translate-x-1/2 -bottom-2">
-                    <i className="fa fa-quote-left text-white"></i>
+                  <div className="bg-white rounded-xl p-6 pt-14 shadow-md h-full">
+                    <i className="fa fa-quote-left text-blue-600 text-xl mb-3 block"></i>
+                    <p className="text-gray-600 mb-4 leading-relaxed text-sm">
+                      Clita clita tempor justo dolor ipsum amet kasd amet duo justo duo duo
+                      labore sed sed. Magna ut diam sit et amet stet eos sed clita erat
+                      magna elitr erat sit sit erat at rebum justo sea clita.
+                    </p>
+                    <h5 className="font-semibold text-gray-900">Client Name</h5>
+                    <span className="italic text-gray-500 text-sm">Profession</span>
                   </div>
-                </div>
-                <div className="bg-white rounded p-6 shadow text-center">
-                  <p className="text-gray-600 mb-4">
-                    Clita clita tempor justo dolor ipsum amet kasd amet duo justo duo duo
-                    labore sed sed. Magna ut diam sit et amet stet eos sed clita erat
-                    magna elitr erat sit sit erat at rebum justo sea clita.
-                  </p>
-                  <h5 className="font-semibold">Client Name</h5>
-                  <span className="italic text-gray-500">Profession</span>
-                </div>
-              </div>
-
-              {/* Testimonial 3 */}
-              <div className="min-w-[300px] text-center">
-                <div className="relative">
-                  <img
-                    src={testimonial3}
-                    alt="Client Testimonial"
-                    className="w-24 h-24 rounded-full mx-auto mb-6 object-cover"
-                  />
-                  <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center absolute left-1/2 -translate-x-1/2 -bottom-2">
-                    <i className="fa fa-quote-left text-white"></i>
-                  </div>
-                </div>
-                <div className="bg-white rounded p-6 shadow text-center">
-                  <p className="text-gray-600 mb-4">
-                    Clita clita tempor justo dolor ipsum amet kasd amet duo justo duo duo
-                    labore sed sed. Magna ut diam sit et amet stet eos sed clita erat
-                    magna elitr erat sit sit erat at rebum justo sea clita.
-                  </p>
-                  <h5 className="font-semibold">Client Name</h5>
-                  <span className="italic text-gray-500">Profession</span>
-                </div>
-              </div>
-
-            </div>
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
         </div>
-        {/* <!-- Testimonial End --> */}
+        {/* Testimonial End */}
 
         <Footer />
 
-        {/* <!-- Back to Top --> */}
-        <a
-          href="#"
-          className="fixed bottom-6 right-6 w-12 h-12 flex items-center justify-center rounded-full shadow-lg text-white bg-blue-600 hover:bg-blue-700 transition duration-300 no-underline"
+        {/* Back to Top */}
+        <motion.button
+          onClick={() =>
+            window.scrollTo({
+              top: 0,
+              behavior: "smooth",
+            })
+          }
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          className="fixed bottom-6 right-6 w-12 h-12 flex items-center justify-center rounded-full shadow-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-300 z-50"
+          aria-label="Back to top"
         >
-          <i class="fa-solid fa-arrow-up"></i>
-        </a>
+          <i className="fa-solid fa-arrow-up"></i>
+        </motion.button>
 
       </div>
     </div>

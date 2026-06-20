@@ -1,62 +1,107 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { getProducts } from "../services/productService";
+import { motion } from "framer-motion";
 
 function ProductList() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const staggerContainer = {
+    hidden: {},
+    visible: {
+      transition: { staggerChildren: 0.08 },
+    },
+  };
+
+  const cardItem = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0 },
+  };
+
+  const loadProducts = async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const { data } = await getProducts();
+      setProducts(data.products || []);
+    } catch (err) {
+      setError(true);
+      toast.error(err.response?.data?.message || "Failed to load products");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadProducts = async () => {
-      try {
-        const { data } = await getProducts();
-        setProducts(data.products || []);
-      } catch (error) {
-        toast.error(error.response?.data?.message || "Failed to load products");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadProducts();
   }, []);
 
+  const formatPrice = (price) =>
+    new Intl.NumberFormat('en-IN').format(price ?? 0);
+
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-100">
+      <div className="flex items-center justify-center py-20">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-300 border-t-blue-600" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 px-6 py-10">
+    <div className="px-0 py-10">
       <div className="mx-auto max-w-7xl">
         <div className="mb-10">
           <h1 className="text-4xl font-bold text-slate-800">Products</h1>
           <p className="mt-2 text-slate-500">Browse the latest catalog.</p>
         </div>
 
-        {products.length === 0 ? (
+        {error ? (
+          <div className="rounded-lg bg-white p-10 text-center shadow">
+            <h2 className="text-xl font-semibold text-slate-700 mb-2">
+              Couldn't load products
+            </h2>
+            <p className="text-slate-500 mb-6">
+              Something went wrong while fetching the catalog. Please try again.
+            </p>
+            <button
+              onClick={loadProducts}
+              className="px-5 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        ) : products.length === 0 ? (
           <div className="rounded-lg bg-white p-10 text-center shadow">
             <h2 className="text-xl font-semibold text-slate-600">No products available</h2>
+            <p className="text-slate-500 mt-2">Check back soon — new items are added regularly.</p>
           </div>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+            className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          >
             {products.map((product) => {
               const imageUrl = product.images?.[0]?.url || product.image;
 
               return (
-                <article
+                <motion.article
                   key={product._id}
-                  className="overflow-hidden rounded-lg bg-white shadow transition hover:shadow-lg"
+                  variants={cardItem}
+                  whileHover={{ y: -6 }}
+                  transition={{ duration: 0.25 }}
+                  className="overflow-hidden rounded-lg bg-white shadow transition-shadow hover:shadow-lg"
                 >
-                  <div className="aspect-[4/3] bg-slate-200">
+                  <div className="aspect-[4/3] bg-slate-200 overflow-hidden">
                     {imageUrl ? (
                       <img
                         src={imageUrl}
                         alt={product.title}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-cover hover:scale-105 transition-transform duration-500"
                         loading="lazy"
                       />
                     ) : (
@@ -74,17 +119,17 @@ function ProductList() {
 
                     <div className="mt-4 flex items-center justify-between gap-3">
                       <span className="text-xl font-bold text-green-700">
-                        Rs. {product.price}
+                        Rs. {formatPrice(product.price)}
                       </span>
                       <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
                         {product.category}
                       </span>
                     </div>
                   </div>
-                </article>
+                </motion.article>
               );
             })}
-          </div>
+          </motion.div>
         )}
       </div>
     </div>

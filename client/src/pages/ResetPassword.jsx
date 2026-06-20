@@ -1,9 +1,10 @@
 import React, { useRef, useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { assets } from '../assets/assets';
 import { AppContext } from '../context/AppContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { motion } from 'framer-motion';
 
 function ResetPassword() {
 
@@ -12,160 +13,192 @@ function ResetPassword() {
   const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [isOtpSent, setIsOtpSent] = useState(false);
-  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   const inputrefs = useRef([]);
-    const handleInput = (e, index) => {
-      if (e.target.value.length > 0 && index < inputrefs.current.length - 1) {
-        inputrefs.current[index + 1].focus();
-      }
-      if (e.target.value.length === 0 && index > 0) {
-        inputrefs.current[index - 1].focus();
-      }
+
+  const handleInput = (e, index) => {
+    if (e.target.value.length > 0 && index < inputrefs.current.length - 1) {
+      inputrefs.current[index + 1].focus();
     }
-  
-    const handlePaste = (e) => {
-      e.preventDefault();
-      const pasteData = e.clipboardData.getData('text').slice(0, 6).split('');
-      pasteData.forEach((value, index) => {
-        if (index < inputrefs.current.length) {
-          inputrefs.current[index].value = value;
-        }
-      });
+    if (e.target.value.length === 0 && index > 0) {
+      inputrefs.current[index - 1].focus();
     }
+  }
+
+  const handleKeyDown = (e, index) => {
+    if (e.key === 'Backspace' && !e.target.value && index > 0) {
+      inputrefs.current[index - 1].focus();
+    }
+  }
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pasteData = e.clipboardData.getData('text').slice(0, 6).split('');
+    pasteData.forEach((value, index) => {
+      if (index < inputrefs.current.length) {
+        inputrefs.current[index].value = value;
+      }
+    });
+  }
 
   const onSubmitEmail = async (e) => {
     e.preventDefault();
+    if (sendingOtp) return;
+    setSendingOtp(true);
     try {
       axios.defaults.withCredentials = true;
       const { data } = await axios.post(backendUrl + '/api/auth/send-reset-otp', { email });
       if (data.success) {
-        toast.success(data.message);
+        toast.success(data.message || 'OTP sent to your email.');
         setIsOtpSent(true);
       } else {
-        toast.error(data.message);
+        toast.error(data.message || 'Failed to send OTP. Please try again.');
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'An error occurred');
+      toast.error(error.response?.data?.message || 'An error occurred. Please try again.');
+    } finally {
+      setSendingOtp(false);
     }
   }
 
   const onSubmitOtp = async (e) => {
     e.preventDefault();
+    if (resetting) return;
+    setResetting(true);
     const otpValue = inputrefs.current.map(ref => ref?.value || '').join('');
     try {
       axios.defaults.withCredentials = true;
       const { data } = await axios.post(backendUrl + '/api/auth/reset-password', { email, otp: otpValue, newPassword });
       if (data.success) {
-        toast.success(data.message);
+        toast.success(data.message || 'Password reset successfully!');
         navigate('/login');
       } else {
-        toast.error(data.message);
+        toast.error(data.message || 'Failed to reset password. Please try again.');
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'An error occurred');
+      toast.error(error.response?.data?.message || 'An error occurred. Please try again.');
+    } finally {
+      setResetting(false);
     }
   }
-  
 
   return (
-    <div className='flex flex-col items-center justify-center min-h-screen bg-[url("/bg_img.png")] bg-cover bg-center relative'>
-      <img onClick={() => navigate('/')} src={assets.logo} alt="" className='absolute left-5 sm:left-20 top-5 w-28 sm:w-32 cursor-pointer' />
+    <div className='flex flex-col items-center justify-center min-h-screen bg-[url("/bg_img.png")] bg-cover bg-center relative px-4'>
+      <Link
+        to="/"
+        className='absolute left-5 sm:left-10 top-5 flex items-center gap-2 no-underline'
+      >
+        <div className='w-10 h-10 rounded-xl border border-amber-400 flex items-center justify-center'>
+          <span className='text-amber-400 font-black text-lg'>M</span>
+        </div>
+        <span className='text-gray-400 font-bold text-lg hidden sm:inline'>
+          Majestic<span className='text-amber-400'>India</span>
+        </span>
+      </Link>
 
       {/* email input form */}
-      {!isEmailVerified && !isOtpSent && (<form onSubmit={onSubmitEmail} className='bg-slate-900 p-8 rounded-lg shadow-lg text-sm w-96 text-center text-white'>
-        <h1 className='text-white text-2xl font-semibold text-center mb-4'>Reset Password</h1>
-        <p className='text-indigo-300 mb-6'>Enter your registered email address</p>
+      {!isOtpSent && (
+        <motion.form
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          onSubmit={onSubmitEmail}
+          className='bg-gray-950/90 border border-gray-800 backdrop-blur-sm p-8 rounded-2xl shadow-2xl shadow-black/40 text-sm w-full sm:w-96 text-center text-white'
+        >
+          <h1 className='text-white text-2xl font-semibold text-center mb-3'>Reset Password</h1>
+          <p className='text-gray-400 mb-6'>Enter your registered email address and we'll send you a code.</p>
 
-        <div className='flex items-center justify-around p-4'>
-          <img src={assets.mail_icon} alt="" className='pr-4' />
+          <div className='flex items-center gap-3 w-full border border-gray-700 bg-gray-900/60 rounded-full px-6 py-2.5 mb-6 focus-within:border-amber-400 transition-colors'>
+            <img src={assets.mail_icon} alt="" />
             <input
-              aria-label="Business contact input"
-              placeholder="Enter your business email"
-              class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500 text-gray-900 dark:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500 shadow-sm"
+              aria-label="Email address"
+              placeholder="Enter your email"
+              className="outline-none bg-transparent w-full text-white placeholder:text-gray-500"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-        </div>
-        <button
-          type="submit"
-          class="relative inline-flex items-center justify-center px-8 py-2.5 overflow-hidden tracking-tighter text-white bg-gray-800 rounded-md group"
-        >
-          <span
-            class="absolute w-0 h-0 transition-all duration-500 ease-out bg-orange-600 rounded-full group-hover:w-56 group-hover:h-56"
-          ></span>
-          <span class="absolute bottom-0 left-0 h-full -ml-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="w-auto h-full opacity-100 object-stretch"
-              viewBox="0 0 487 487"
-            >
-              <path
-                fill-opacity=".1"
-                fill-rule="nonzero"
-                fill="#FFF"
-                d="M0 .3c67 2.1 134.1 4.3 186.3 37 52.2 32.7 89.6 95.8 112.8 150.6 23.2 54.8 32.3 101.4 61.2 149.9 28.9 48.4 77.7 98.8 126.4 149.2H0V.3z"
-              ></path>
-            </svg>
-          </span>
-          <span class="absolute top-0 right-0 w-12 h-full -mr-3">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="object-cover w-full h-full"
-              viewBox="0 0 487 487"
-            >
-              <path
-                fill-opacity=".1"
-                fill-rule="nonzero"
-                fill="#FFF"
-                d="M487 486.7c-66.1-3.6-132.3-7.3-186.3-37s-95.9-85.3-126.2-137.2c-30.4-51.8-49.3-99.9-76.5-151.4C70.9 109.6 35.6 54.8.3 0H487v486.7z"
-              ></path>
-            </svg>
-          </span>
-          <span
-            class="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-gradient-to-b from-transparent via-transparent to-gray-200"
-          ></span>
-          <span class="relative text-base font-semibold">Submit !</span>
-        </button>
-      </form>)}
+          </div>
 
-      
+          <motion.button
+            type="submit"
+            disabled={sendingOtp}
+            whileHover={{ scale: sendingOtp ? 1 : 1.02 }}
+            whileTap={{ scale: sendingOtp ? 1 : 0.98 }}
+            className="w-full bg-amber-400 hover:bg-amber-300 disabled:opacity-60 disabled:cursor-not-allowed text-gray-950 py-2.5 rounded-full font-semibold transition-colors duration-200"
+          >
+            {sendingOtp ? 'Sending...' : 'Send Reset Code'}
+          </motion.button>
+        </motion.form>
+      )}
 
       {/* otp reset form */}
       {isOtpSent && (
-        <form onSubmit={onSubmitOtp} className='bg-slate-900 p-8 rounded-lg shadow-lg text-sm w-96 text-center text-white mt-8' onPaste={handlePaste}>
-          <h1 className='text-white text-2xl font-semibold text-center mb-4'>Reset Password OTP</h1>
-          <p className='text-indigo-300 mb-6'>Please enter the OTP sent to your email address and your new password.</p>
+        <motion.form
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          onSubmit={onSubmitOtp}
+          className='bg-gray-950/90 border border-gray-800 backdrop-blur-sm p-8 rounded-2xl shadow-2xl shadow-black/40 text-sm w-full sm:w-96 text-center text-white'
+          onPaste={handlePaste}
+        >
+          <h1 className='text-white text-2xl font-semibold text-center mb-3'>Enter Reset Code</h1>
+          <p className='text-gray-400 mb-6'>
+            We sent a 6-digit code to <span className='text-amber-400'>{email}</span>. Enter it below with your new password.
+          </p>
 
-          <div className='flex justify-between mb-8'>
-            {Array(6).fill(0).map((_, index) => {
-              return <input type="text" maxLength="1" required className='w-12 h-12 text-center border border-gray-600 bg-slate-800 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded'
+          <div className='flex justify-between gap-2 mb-6'>
+            {Array(6).fill(0).map((_, index) => (
+              <input
+                key={index}
+                type="text"
+                inputMode="numeric"
+                maxLength="1"
+                required
+                aria-label={`Digit ${index + 1} of 6`}
+                className='w-12 h-12 text-center border border-gray-700 bg-gray-900/60 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 rounded-lg transition-colors'
                 ref={e => inputrefs.current[index] = e}
                 onInput={(e) => handleInput(e, index)}
-              />;
-            })}
+                onKeyDown={(e) => handleKeyDown(e, index)}
+              />
+            ))}
           </div>
+
           <input
             type="password"
             placeholder="Enter new password"
-            className='w-full px-4 py-2 mb-4 bg-slate-800 border border-gray-600 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500'
+            className='w-full px-5 py-2.5 mb-6 bg-gray-900/60 border border-gray-700 rounded-full text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-colors'
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             required
+            minLength={8}
           />
-          <button type="submit" className='bg-linear-to-r from-indigo-500 to-indigo-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500'>
-            Reset Password
+
+          <motion.button
+            type="submit"
+            disabled={resetting}
+            whileHover={{ scale: resetting ? 1 : 1.02 }}
+            whileTap={{ scale: resetting ? 1 : 0.98 }}
+            className='w-full bg-amber-400 hover:bg-amber-300 disabled:opacity-60 disabled:cursor-not-allowed text-gray-950 font-semibold py-2.5 rounded-full transition-colors duration-200'
+          >
+            {resetting ? 'Resetting...' : 'Reset Password'}
+          </motion.button>
+
+          <button
+            type="button"
+            onClick={() => setIsOtpSent(false)}
+            className='mt-4 text-gray-400 hover:text-amber-400 text-sm transition-colors'
+          >
+            ← Use a different email
           </button>
-        </form>
+        </motion.form>
       )}
-
-
 
     </div>
   );
 }
 
 export default ResetPassword;
-

@@ -16,18 +16,23 @@ import Contact from '../src/pages/Contact.jsx';
 import ProductManagement from "../src/pages/ProductManagement.jsx";
 import ProductList from "../src/pages/ProductList.jsx";
 import EditProduct from "../src/pages/EditProduct.jsx";
+import ScrollToTop from "./components/ScrollToTop.jsx"
+import Quote from "./pages/Quote.jsx";
 
 function App() {
 
   return (
     <>
       <ToastContainer />
-      <Routes>
+
+      <ScrollToTop />
+        <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/service" element={<Services />} />
         <Route path="/project" element={<Project />} />
+        <Route path="/quote" element={<Quote />} />
 
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
@@ -113,6 +118,8 @@ function App() {
 
 
       </Routes>
+      <ScrollToTop />
+      
     </>
   )
 }
