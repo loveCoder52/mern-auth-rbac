@@ -253,13 +253,14 @@ const Navbar = () => {
           ))}
 
           <div className="pt-3 border-t border-gray-800 space-y-2">
-            <a
-              navigate="/quote"
+            <NavLink
+              to="/quote"
               onClick={() => setOpen(false)}
               className="block text-center px-4 py-2.5 rounded-lg bg-amber-400 text-gray-950 text-sm font-semibold"
             >
               Get A Quote
-            </a>
+            </NavLink>
+
 
             {userData ? (
               <>

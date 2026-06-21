@@ -10,6 +10,7 @@ import userRouter from "./routes/userRoutes.js"
 import adminRouter from "./routes/adminRoutes.js"
 import managerRouter from "./routes/managerRoutes.js"
 import productRoutes from "./routes/productRoutes.js";
+import inquiryRoutes from "./routes/inquiryRoutes.js";
 
 // dotenv.config({
 //     Path: "./config/.env"
@@ -37,5 +38,6 @@ app.use('/api/user', userRouter);
 app.use('/api/admin', adminRouter); // Admin routes with RBAC
 app.use('/api/manager', managerRouter); // Manager routes with limited permissions
 app.use("/api/products", productRoutes);
+app.use("/api/inquiries", inquiryRoutes);
 
 app.listen(port, () => console.log(`Server started on PORT ${port}`))

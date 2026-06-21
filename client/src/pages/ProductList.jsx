@@ -2,11 +2,15 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { getProducts } from "../services/productService";
 import { motion } from "framer-motion";
+import ContactToBuyModal from "../components/ContactToBuyModal";
 
 function ProductList() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+
 
   const staggerContainer = {
     hidden: {},
@@ -112,7 +116,10 @@ function ProductList() {
                   </div>
 
                   <div className="p-5">
-                    <h3 className="text-lg font-bold text-slate-800">{product.title}</h3>
+                    <h3 className="text-lg font-bold text-slate-800">
+                      {product.title}
+                    </h3>
+
                     <p className="mt-2 line-clamp-2 text-sm text-slate-500">
                       {product.description}
                     </p>
@@ -121,15 +128,36 @@ function ProductList() {
                       <span className="text-xl font-bold text-green-700">
                         Rs. {formatPrice(product.price)}
                       </span>
+
                       <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
                         {product.category}
                       </span>
                     </div>
+
+                    <button
+                      onClick={() => {
+                        console.log("Button clicked");
+                        setSelectedProduct(product);
+                        setShowModal(true);
+                      }}
+                      className="mt-4 w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+                    >
+                      Contact To Buy
+                    </button>
                   </div>
                 </motion.article>
               );
             })}
           </motion.div>
+        )}
+        {showModal && selectedProduct && (
+          <ContactToBuyModal
+            product={selectedProduct}
+            onClose={() => {
+              setShowModal(false);
+              setSelectedProduct(null);
+            }}
+          />
         )}
       </div>
     </div>
