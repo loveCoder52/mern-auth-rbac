@@ -10,7 +10,7 @@ import { motion } from 'framer-motion';
 const Login = () => {
 
   const navigate = useNavigate();
-  const { backendUrl, setIsLoggedIn, setUserRole, setUserData, setUserPermissions, getAuthState } = useContext(AppContext);
+  const { backendUrl, getAuthState } = useContext(AppContext);
 
   const [state, setState] = useState('Sign Up');
   const [name, setName] = useState('');

@@ -1,4 +1,4 @@
-import { useState, createContext, useEffect } from "react";
+import { useState, createContext, useEffect, useCallback } from "react";
 import axios from "axios";
 import { toast } from 'react-toastify';
 
@@ -19,7 +19,7 @@ export const AppContextProvider = ({ children }) => {
   );
   const [loading, setLoading] = useState(true);
 
-  const getAuthState = async () => {
+  const getAuthState = useCallback(async () => {
     try {
       const { data } = await axios.get(backendUrl + "/api/auth/is-auth");
       if(data.success){
@@ -48,7 +48,7 @@ export const AppContextProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }
+  }, [backendUrl]);
 
   const getUserData = async () => {
     try {
@@ -105,7 +105,7 @@ export const AppContextProvider = ({ children }) => {
 
   useEffect(() => {
     getAuthState();
-  }, []);
+  }, [getAuthState]);
 
   const value = {
     backendUrl,

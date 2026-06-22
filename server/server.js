@@ -12,9 +12,7 @@ import managerRouter from "./routes/managerRoutes.js"
 import productRoutes from "./routes/productRoutes.js";
 import inquiryRoutes from "./routes/inquiryRoutes.js";
 
-// dotenv.config({
-//     Path: "./config/.env"
-// })
+
 
 const app = express();
 const port = process.env.PORT || 4000

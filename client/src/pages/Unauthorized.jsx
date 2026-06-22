@@ -10,7 +10,7 @@ const Unauthorized = () => {
         <h1 className='text-6xl font-bold text-red-500 mb-4'>403</h1>
         <h2 className='text-3xl font-bold mb-4'>Access Denied</h2>
         <p className='text-gray-400 text-lg mb-8'>
-          You don't have permission to access this resource. 
+          You don&apos;t have permission to access this resource.
           <br />
           Please contact an administrator if you believe this is a mistake.
         </p>

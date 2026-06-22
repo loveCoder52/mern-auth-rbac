@@ -4,6 +4,7 @@ import Login from "./pages/Login"
 import EmailVerify from "./pages/EmailVerify"
 import ResetPassword from "./pages/ResetPassword"
 import UserDashboard from "./pages/UserDashboard"
+import Profile from "./pages/Profile"
 import AdminDashboard from "./pages/AdminDashboard"
 import ManagerDashboard from "./pages/ManagerDashboard"
 import Unauthorized from "./pages/Unauthorized"
@@ -55,6 +56,15 @@ function App() {
           element={
             <ProtectedRoute requiredRoles={['user', 'manager', 'admin']}>
               <UserDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute requiredRoles={['user', 'manager', 'admin']}>
+              <Profile />
             </ProtectedRoute>
           }
         />

@@ -1,6 +1,5 @@
 import React, { useRef, useContext, useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { assets } from '../assets/assets';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { AppContext } from '../context/AppContext.jsx';
@@ -8,7 +7,7 @@ import { motion } from 'framer-motion';
 
 function EmailVerify() {
 
-  const { backendUrl, isLoggedIn, getUserData, userData, isLoading } = useContext(AppContext);
+  const { backendUrl, isLoggedIn, getUserData, userData, loading } = useContext(AppContext);
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [resending, setResending] = useState(false);
@@ -85,19 +84,25 @@ function EmailVerify() {
   }
 
   useEffect(() => {
-    if (!isLoading && isLoggedIn && userData && userData.isAccountVerified) {
+    if (!loading && isLoggedIn && userData && userData.isAccountVerified) {
       navigate('/');
     }
-  }, [isLoading, isLoggedIn, userData, navigate]);
+  }, [loading, isLoggedIn, userData, navigate]);
 
   // Auth state still resolving — avoid flashing the OTP form for an
   // already-verified user before the redirect above can fire.
-  if (isLoading) {
+  if (loading) {
     return (
       <div className='flex items-center justify-center min-h-screen bg-[url("/bg_img.png")] bg-cover bg-center'>
         <div className='h-10 w-10 animate-spin rounded-full border-4 border-gray-700 border-t-amber-400' />
       </div>
     );
+  }
+
+  // Already verified — the effect above is about to redirect away.
+  // Render nothing instead of letting the form flash on screen first.
+  if (isLoggedIn && userData?.isAccountVerified) {
+    return null;
   }
 
   return (

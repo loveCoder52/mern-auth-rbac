@@ -17,20 +17,13 @@ import { PERMISSIONS } from "../config/rolePermission.js";
 
 const router = express.Router();
 
-router.get(
-  "/",
-  authMiddleware,
-  permissionMiddleware(PERMISSIONS.VIEW_PRODUCT),
-  getProducts
-);
+// PUBLIC: anyone (logged in or not) can browse the catalog.
+// No authMiddleware / permissionMiddleware here on purpose —
+// this is the customer-facing product listing.
+router.get("/", getProducts);
+router.get("/:id", getProduct);
 
-router.get(
-  "/:id",
-  authMiddleware,
-  permissionMiddleware(PERMISSIONS.VIEW_PRODUCT),
-  getProduct
-);
-
+// PROTECTED: only admin/manager can create, update, delete.
 router.post(
   "/",
   authMiddleware,

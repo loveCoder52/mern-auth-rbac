@@ -20,7 +20,7 @@ const ProtectedRoute = ({
   requiredPermissions = null,
   requireAllPermissions = false // If false, requires any one permission; if true, requires all
 }) => {
-  const { isLoggedIn, userRole, hasPermission, hasAnyPermission, hasAllPermissions, loading } = useContext(AppContext);
+  const { isLoggedIn, userRole, hasAnyPermission, hasAllPermissions, loading } = useContext(AppContext);
 
   // Show loading while checking auth
   if (loading) {

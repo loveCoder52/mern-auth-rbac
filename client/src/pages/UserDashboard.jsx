@@ -5,15 +5,15 @@ import { motion } from 'framer-motion';
 
 const UserDashboard = () => {
   const navigate = useNavigate();
-  const { userData, isLoggedIn, isLoading, logout } = useContext(AppContext);
+  const { userData, isLoggedIn, loading, logout } = useContext(AppContext);
 
   useEffect(() => {
     // Wait for auth state to finish resolving before redirecting,
     // otherwise a logged-in user gets bounced to /login on every refresh.
-    if (!isLoading && !isLoggedIn) {
+    if (!loading && !isLoggedIn) {
       navigate('/login');
     }
-  }, [isLoading, isLoggedIn, navigate]);
+  }, [loading, isLoggedIn, navigate]);
 
   const handleLogout = async () => {
     await logout();
@@ -32,7 +32,7 @@ const UserDashboard = () => {
 
   // Auth state still resolving — show a neutral loading screen instead of
   // briefly redirecting a valid, logged-in user to /login.
-  if (isLoading) {
+  if (loading) {
     return (
       <div className='min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center'>
         <div className='h-10 w-10 animate-spin rounded-full border-4 border-gray-600 border-t-indigo-400' />
@@ -121,13 +121,13 @@ const UserDashboard = () => {
                 View Profile
               </button>
               <button
-                onClick={() => navigate('/change-password')}
+                onClick={() => navigate('/profile')}
                 className='w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition duration-300'
               >
                 Change Password
               </button>
               <button
-                onClick={() => navigate('/settings')}
+                onClick={() => navigate('/profile')}
                 className='w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition duration-300'
               >
                 Account Settings

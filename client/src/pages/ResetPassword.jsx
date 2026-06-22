@@ -108,7 +108,7 @@ function ResetPassword() {
           className='bg-gray-950/90 border border-gray-800 backdrop-blur-sm p-8 rounded-2xl shadow-2xl shadow-black/40 text-sm w-full sm:w-96 text-center text-white'
         >
           <h1 className='text-white text-2xl font-semibold text-center mb-3'>Reset Password</h1>
-          <p className='text-gray-400 mb-6'>Enter your registered email address and we'll send you a code.</p>
+          <p className='text-gray-400 mb-6'>Enter your registered email address and we&apos;ll send you a code.</p>
 
           <div className='flex items-center gap-3 w-full border border-gray-700 bg-gray-900/60 rounded-full px-6 py-2.5 mb-6 focus-within:border-amber-400 transition-colors'>
             <img src={assets.mail_icon} alt="" />

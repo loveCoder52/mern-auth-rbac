@@ -64,7 +64,7 @@ function ProductList() {
         {error ? (
           <div className="rounded-lg bg-white p-10 text-center shadow">
             <h2 className="text-xl font-semibold text-slate-700 mb-2">
-              Couldn't load products
+              Couldn&apos;t load products
             </h2>
             <p className="text-slate-500 mb-6">
               Something went wrong while fetching the catalog. Please try again.

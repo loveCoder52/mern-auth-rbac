@@ -248,18 +248,9 @@ export const sendResetOtp = async (req, res) => {
             return res.json({ success: false, message: "User not found!" });
         }
 
-        // const otp = String(Math.floor(100000 + Math.random() * 900000));
-        // user.resetOtp = otp;
-        // user.resetOtpExpireAt = Date.now() + 15 * 60 * 1000;
-
-        const hashOtp = (otp) => crypto.createHash("sha256").update(otp).digest("hex");
-
-        user.resetOtp = hashOtp(otp);
-
-        // later:
-        if (!user.resetOtp || user.resetOtp !== hashOtp(otp)) {
-            return res.status(400).json({ success: false, message: "Invalid OTP" });
-        }
+        const otp = String(Math.floor(100000 + Math.random() * 900000));
+        user.resetOtp = otp;
+        user.resetOtpExpireAt = Date.now() + 15 * 60 * 1000;
 
         await user.save();
 

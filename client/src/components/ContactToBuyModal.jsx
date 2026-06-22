@@ -3,8 +3,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 
-const COMPANY_PHONE = "919999999999";
-const COMPANY_EMAIL = "sales@yourcompany.com";
+const COMPANY_PHONE = "9277065870";
+const COMPANY_EMAIL = "love.sharma.engineer@gmail.com";
 
 function ContactToBuyModal({ product, onClose }) {
     const [form, setForm] = useState({

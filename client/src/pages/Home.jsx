@@ -5,7 +5,6 @@ import Footer from '../components/Footer';
 import Carousel from '../components/Carousel';
 import aboutImg from '../img/about.jpg'
 import featureImg from '../img/feature.jpg'
-import quoteImg from '../img/quote.jpg'
 import img1 from '../img/img-600x400-1.jpg'
 import img2 from '../img/img-600x400-2.jpg'
 import img3 from '../img/img-600x400-3.jpg'
@@ -404,87 +403,6 @@ const Home = () => {
         {/* Projects End */}
 
         {/* Quote Start */}
-        {/* <div id="quote" className="w-full overflow-hidden py-4">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-xl overflow-hidden shadow-xl">
-
-              <motion.div
-                variants={fadeLeft}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.4 }}
-                transition={{ duration: 0.7 }}
-                className="relative min-h-[320px] lg:min-h-[480px]"
-              >
-                <img
-                  src={quoteImg}
-                  alt="Get Quote"
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-              </motion.div>
-
-              <motion.div
-                variants={fadeRight}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.4 }}
-                transition={{ duration: 0.7 }}
-                className="py-12 px-6 lg:px-12 bg-white"
-              >
-                <h6 className="text-blue-600 font-semibold tracking-wide uppercase text-sm">Free Quote</h6>
-                <h1 className="text-3xl font-bold mb-4 text-gray-900">Get A Free Quote</h1>
-                <p className="text-gray-600 mb-6 leading-relaxed">
-                  Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit.
-                  Aliqu diam amet diam et eos. Clita erat ipsum et lorem et sit,
-                  sed stet lorem sit clita duo justo erat amet
-                </p>
-
-                <form className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <input
-                    type="text"
-                    placeholder="Your Name"
-                    className="h-[52px] w-full rounded-lg border border-gray-200 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
-                  />
-                  <input
-                    type="email"
-                    placeholder="Your Email"
-                    className="h-[52px] w-full rounded-lg border border-gray-200 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Your Mobile"
-                    className="h-[52px] w-full rounded-lg border border-gray-200 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
-                  />
-                  <select
-                    className="h-[52px] w-full rounded-lg border border-gray-200 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow text-gray-700"
-                    defaultValue=""
-                  >
-                    <option value="" disabled>Select A Service</option>
-                    <option value="1">Service 1</option>
-                    <option value="2">Service 2</option>
-                    <option value="3">Service 3</option>
-                  </select>
-                  <textarea
-                    placeholder="Special Note"
-                    rows={4}
-                    className="col-span-1 sm:col-span-2 w-full rounded-lg border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow resize-none"
-                  />
-                  <div className="col-span-1 sm:col-span-2">
-                    <motion.button
-                      type="submit"
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.97 }}
-                      className="bg-blue-600 text-white rounded-full px-8 py-3 font-medium hover:bg-blue-700 transition-colors"
-                    >
-                      Submit
-                    </motion.button>
-                  </div>
-                </form>
-              </motion.div>
-
-            </div>
-          </div>
-        </div> */}
         <Quote />
         {/* Quote End */}
 

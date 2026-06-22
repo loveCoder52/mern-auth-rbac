@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
 import axios from 'axios';
@@ -8,29 +8,16 @@ import { motion } from 'framer-motion';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const { userData, isLoggedIn, isLoading, logout, backendUrl } = useContext(AppContext);
+  const { userData, isLoggedIn, loading: authLoading, logout, backendUrl } = useContext(AppContext);
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loadingUsers, setLoadingUsers] = useState(true);
   const [statsError, setStatsError] = useState(false);
   const [updatingRole, setUpdatingRole] = useState(null);
 
-  useEffect(() => {
-    // Wait for auth state to finish resolving before redirecting,
-    // otherwise a logged-in admin gets bounced to /login on every refresh.
-    if (!isLoading) {
-      if (!isLoggedIn) {
-        navigate('/login');
-      } else {
-        fetchUsers();
-        fetchStats();
-      }
-    }
-  }, [isLoading, isLoggedIn, navigate]);
-
   // Fetch all users from backend
-  const fetchUsers = async () => {
-    setLoading(true);
+  const fetchUsers = useCallback(async () => {
+    setLoadingUsers(true);
     try {
       axios.defaults.withCredentials = true;
       const { data } = await axios.get(backendUrl + '/api/admin/users');
@@ -42,12 +29,12 @@ const AdminDashboard = () => {
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to fetch users. Please try again.');
     } finally {
-      setLoading(false);
+      setLoadingUsers(false);
     }
-  };
+  }, [backendUrl]);
 
   // Fetch admin statistics
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     setStatsError(false);
     try {
       axios.defaults.withCredentials = true;
@@ -61,7 +48,20 @@ const AdminDashboard = () => {
       setStatsError(true);
       console.error('Failed to fetch stats:', error);
     }
-  };
+  }, [backendUrl]);
+
+  useEffect(() => {
+    // Wait for auth state to finish resolving before redirecting,
+    // otherwise a logged-in admin gets bounced to /login on every refresh.
+    if (!authLoading) {
+      if (!isLoggedIn) {
+        navigate('/login');
+      } else {
+        fetchUsers();
+        fetchStats();
+      }
+    }
+  }, [authLoading, isLoggedIn, navigate, fetchUsers, fetchStats]);
 
   // Delete user function
   const handleDeleteUser = async (userId, userName) => {
@@ -127,7 +127,7 @@ const AdminDashboard = () => {
     visible: { transition: { staggerChildren: 0.1 } },
   };
 
-  if (isLoading) {
+  if (authLoading) {
     return (
       <div className='min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center'>
         <div className='h-10 w-10 animate-spin rounded-full border-4 border-gray-600 border-t-red-400' />
@@ -179,7 +179,7 @@ const AdminDashboard = () => {
         {/* Statistics Cards */}
         {statsError ? (
           <motion.div variants={fadeUp} className='bg-gray-700 rounded-lg shadow-lg p-6 mb-12 text-center'>
-            <p className='text-gray-300 mb-3'>Couldn't load statistics.</p>
+            <p className='text-gray-300 mb-3'>Couldn&apos;t load statistics.</p>
             <button
               onClick={fetchStats}
               className='px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition duration-300'
@@ -208,7 +208,7 @@ const AdminDashboard = () => {
         <motion.div variants={fadeUp} className='bg-gray-700 rounded-lg shadow-lg p-6'>
           <h3 className='text-2xl font-bold mb-6 text-red-400'>User Management</h3>
 
-          {loading ? (
+          {loadingUsers ? (
             <div className='flex justify-center py-8'>
               <div className='h-8 w-8 animate-spin rounded-full border-4 border-gray-600 border-t-red-400' />
             </div>

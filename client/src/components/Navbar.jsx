@@ -15,19 +15,24 @@ const Navbar = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { userData, backendUrl, setUserData, setIsLoggedIn, logout, userRole } = useContext(AppContext);
+  const { userData, backendUrl, logout, userRole } = useContext(AppContext);
+
+  // Close the mobile menu and avatar dropdown whenever the route changes.
+  // Adjusted during render (not in an effect) per React's guidance for
+  // resetting state in response to a changing value — see
+  // https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
+  const [prevPathname, setPrevPathname] = useState(location.pathname);
+  if (location.pathname !== prevPathname) {
+    setPrevPathname(location.pathname);
+    setOpen(false);
+    setDropdownOpen(false);
+  }
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  // Close mobile menu and dropdown whenever the route changes
-  useEffect(() => {
-    setOpen(false);
-    setDropdownOpen(false);
-  }, [location.pathname]);
 
   // Close the avatar dropdown when clicking outside it
   useEffect(() => {
